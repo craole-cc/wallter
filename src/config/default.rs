@@ -79,10 +79,10 @@ impl Display for Config {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         writeln!(f, "Configuration:")?;
 
-        //~@ Paths section
+        //~@ Paths Section
         writeln!(f, "  Paths:\n{}", self.path)?;
 
-        //~@ Monitors section
+        //~@ Monitors Section
         if self.monitor.is_empty() {
             writeln!(f, "  Monitors: No monitors detected")?;
         } else {
@@ -92,7 +92,7 @@ impl Display for Config {
             }
         }
 
-        //~@ Slideshow section
+        //~@ Slideshow Section
         if self.slideshow.sources.is_empty() {
             writeln!(f, "  Slideshow: No wallpaper sources configured")?;
         } else {
