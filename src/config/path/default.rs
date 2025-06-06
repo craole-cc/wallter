@@ -40,12 +40,19 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
+        let title = env!("CARGO_PKG_NAME")
+            .chars()
+            .next()
+            .unwrap()
+            .to_uppercase()
+            .chain(env!("CARGO_PKG_NAME").chars().skip(1))
+            .collect::<String>();
         let home_dir = directories::UserDirs::new()
             .expect("Could not determine home directory")
             .home_dir()
             .to_path_buf()
             .join("Pictures")
-            .join(env!("CARGO_PKG_NAME"));
+            .join(title);
         let downloads_dir = home_dir.join("downloads");
         let favorites_dir = home_dir.join("favorites");
         let wallpaper_dir = home_dir.join("wallpaper");
@@ -154,24 +161,9 @@ impl Display for Config {
         const PAD: usize = 24;
 
         printf!(f, "Home Directory", self.home_dir.display(), PAD)?;
-        printf!(
-            f,
-            "Downloads Directory",
-            self.downloads_dir.display(),
-            PAD
-        )?;
-        printf!(
-            f,
-            "Favorites Directory",
-            self.favorites_dir.display(),
-            PAD
-        )?;
-        printf!(
-            f,
-            "Wallpaper Directory",
-            self.wallpaper_dir.display(),
-            PAD
-        )?;
+        printf!(f, "Downloads Directory", self.downloads_dir.display(), PAD)?;
+        printf!(f, "Favorites Directory", self.favorites_dir.display(), PAD)?;
+        printf!(f, "Wallpaper Directory", self.wallpaper_dir.display(), PAD)?;
         printf!(f, "Config File", self.config_file.display(), PAD)?;
         Ok(())
     }

@@ -33,7 +33,6 @@ impl Config {
         //{ Always enumerate current monitors and update the config }
         let detected_monitors = Monitor::enumerate();
         config.monitor = detected_monitors;
-        config.save(path_config)?;
 
         //{ Return the initialized config }
         Ok(config)
