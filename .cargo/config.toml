@@ -1,0 +1,7 @@
+
+#| Terminal Config
+[term]
+quiet = false
+
+#| Environment Variables
+[env]

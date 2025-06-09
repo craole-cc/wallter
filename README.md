@@ -1,61 +1,143 @@
-# Walter
+# Wallter: Redefine Your Desktop with Dynamic Wallpaper Alteration
 
-A simple, command-line driven slideshow and wallpaper manager.
+Unlock the full potential of your desktop with **Wallter**, the innovative application designed to empower you to **alter** your wallpapers dynamically. This includes future capabilities to apply direct image changes, such as grayscale, mosaic effects, and more, before setting the wallpaper. Starting as a robust command-line tool, **Wallter** is set to expand its reach with future graphical (GUI) and web-based interfaces, providing a seamless and highly personalized environment on any platform.
+
+---
+
+## Motivation
+
+**Wallter** was born out of a desire for a truly cross-platform, highly customizable, and automated wallpaper management solution. Existing tools often fall short in specific environments or lack the flexibility needed for power users:
+
+* **Variety (Linux):** While a great tool, it often struggles with Wayland, limiting its utility for users on modern Linux desktops and is not available on Windows.
+* **John's Background Switcher (Windows):** A popular choice, but its lack of a command-line interface and limited automation capabilities hinder advanced customization and integration into automated workflows.
+
+**Wallter** aims to fill these gaps by providing:
+
+* **Native Cross-Platform Support:** Built with Rust, `wallter` is designed from the ground up to work seamlessly across Windows, macOS, and Linux (including Wayland environments), ensuring a consistent experience regardless of your operating system.
+* **Automation at its Core:** Its CLI-first design allows for easy integration into scripts, cron jobs, and custom automation routines, giving you unprecedented control.
+* **The Power of Rust:** Leveraging Rust's performance, safety, and robust ecosystem allows for a reliable and efficient application, while also serving as a personal project to expand a Rust-based `dotfiles` ecosystem.
+
+---
 
 ## Features
 
-* Downloads wallpapers from [Wallhaven](https://wallhaven.cc/) and sets them as your desktop background
-* Supports multiple monitors and resolutions
-* Supports custom commands to run before and after setting the wallpaper
-* Supports custom image directories
+* **Dynamic Wallpaper Sourcing:** Seamlessly downloads and sets high-quality wallpapers from various online sources, starting with **Wallhaven**.
+* **Local Image Integration:** Utilize your personal image collections by designating custom directories for wallpaper selection.
+* **Intelligent Multi-Monitor Support:** Optimizes wallpaper display across diverse monitor setups, intelligently adapting to different resolutions, orientations, and positions.
+* **Automated Workflow Customization:** Execute custom commands both before and after setting wallpapers, allowing for personalized automation of your desktop environment.
+* **Advanced Content Curation:** Fine-tune your wallpaper discovery with granular search parameters for supported APIs, ensuring you find exactly what you're looking for.
+* **Smart Caching:** Efficiently stores downloaded wallpapers locally for faster access and offline use, enhancing performance for features like slideshows.
+* **Wallpaper Alterations (Planned):** Future versions will include the ability to apply direct image changes, such as grayscale, mosaic effects, and adding captions/watermarks, before setting the wallpaper.
+
+---
 
 ## Installation
 
-### From source
+### From Source
 
-1. Clone the repository: `git clone https://github.com/benfrain/walter.git`
-2. Change into the directory: `cd walter`
-3. Build the project: `cargo build --release`
-4. Install the project: `cargo install --path .`
+1. **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/craole-cc/wallter.git
+    ```
+
+2. **Navigate to the project directory:**
+
+    ```bash
+    cd wallter
+    ```
+
+3. **Build the project:**
+
+    ```bash
+    cargo build --release
+    ```
+
+4. **Install the executable:**
+
+    ```bash
+    cargo install --path .
+    ```
 
 ### From crates.io
 
-1. Install the project: `cargo install walter`
+1. **Install directly:**
+
+    ```bash
+    cargo install wallter
+    ```
+
+---
 
 ## Usage
 
-### Initializing the configuration file
+**Wallter** provides intuitive commands for **altering** and managing your wallpapers.
 
-`walter init`
+* **Initialize Configuration:**
 
-### Downloading wallpapers
+    ```bash
+    wallter init
+    ```
 
-`walter download`
+    *Creates a default configuration file, typically located within your `Pictures/Wallter` directory (`~/<User Pictures Dir>/Wallter/config.toml`).*
+* **Download Wallpapers:**
 
-### Setting the wallpaper
+    ```bash
+    wallter download
+    ```
 
-`walter set`
+    *Fetches and saves new wallpapers from configured online sources to your local downloads directory.*
+* **Set Wallpaper:**
 
-### Running the slideshow
+    ```bash
+    wallter set
+    ```
 
-`walter slideshow`
+    *Applies a selected or random wallpaper to your desktop.*
+* **Start Slideshow:**
 
-### Customizing the configuration
+    ```bash
+    wallter slideshow
+    ```
 
-`walter config`
+    *Initiates a rotating display of wallpapers from your configured sources or directories.*
+* **Customize Configuration:**
+
+    ```bash
+    wallter config
+    ```
+
+    *Opens the main configuration file for manual adjustments and advanced setup.*
+
+---
 
 ## Configuration
 
-The configuration file is located at `~/.config/walter/config.toml`. You can customize the following settings:
+The core of **Wallter**'s customization lies in its `config.toml` file. By default, **Wallter** sets up its primary directories within your user's `Pictures` directory for cross-platform simplicity and ease of access. For example, on Windows, this might be `C:\Users\{Username}\Pictures\Wallter\`, and on Linux, `~/Pictures/Wallter/`.
 
-* `api_key`: Your Wallhaven API key
-* `download_dir`: The directory to download wallpapers to
-* `image_dir`: The directory to use for the slideshow
-* `custom_commands`: A list of custom commands to run before and after setting the wallpaper
-* `monitors`: A list of monitor IDs and their corresponding resolutions
-* `slideshow_interval`: The interval to wait between slideshow images
-* `slideshow_unit`: The unit of time for the slideshow interval
+You can customize the following settings to tailor **Wallter** to your precise needs:
+
+* `home_dir`: The root directory for **Wallter**'s operations, containing subdirectories for downloads, favorites, and current wallpapers.
+* `api_key`: Your API key for integrated services (e.g., Wallhaven API key).
+* `downloads_dir`: The designated local directory where **Wallter** will store downloaded wallpapers.
+* `favorites_dir`: A dedicated directory for wallpapers you've marked as favorites.
+* `wallpaper_dir`: The directory where the currently set wallpaper(s) are managed.
+* `config_name`: The base name of the configuration file (e.g., "config").
+* `config_type`: The format type of the configuration file (e.g., "toml", "json").
+* `config_file`: The constructed full path to the configuration file.
+* `custom_commands`: A list of shell commands to execute before and after a wallpaper is set, enabling dynamic actions.
+* `monitors`: A detailed list defining each connected monitor by ID, name, resolution, orientation, scale, and position, allowing for precise multi-monitor control.
+* `slideshow_interval`: The duration (as an integer) to wait between each image change during a slideshow.
+* `slideshow_unit`: The unit of time for `slideshow_interval` (e.g., "seconds", "minutes", "hours").
+
+---
+
+## Project Development
+
+For an in-depth look at **Wallter**'s development roadmap, current tasks, and planned milestones, please refer to the [MILESTONES](MILESTONES.md) file in the repository root.
+
+---
 
 ## License
 
-This project is licensed under the MIT license. See [LICENSE](LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for more information.
