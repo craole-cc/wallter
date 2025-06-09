@@ -1,4 +1,4 @@
-# Walter
+# wallter
 
 A simple, command-line driven slideshow and wallpaper manager.
 
@@ -13,40 +13,40 @@ A simple, command-line driven slideshow and wallpaper manager.
 
 ### From source
 
-1. Clone the repository: `git clone https://github.com/benfrain/walter.git`
-2. Change into the directory: `cd walter`
+1. Clone the repository: `git clone https://github.com/benfrain/wallter.git`
+2. Change into the directory: `cd wallter`
 3. Build the project: `cargo build --release`
 4. Install the project: `cargo install --path .`
 
 ### From crates.io
 
-1. Install the project: `cargo install walter`
+1. Install the project: `cargo install wallter`
 
 ## Usage
 
 ### Initializing the configuration file
 
-`walter init`
+`wallter init`
 
 ### Downloading wallpapers
 
-`walter download`
+`wallter download`
 
 ### Setting the wallpaper
 
-`walter set`
+`wallter set`
 
 ### Running the slideshow
 
-`walter slideshow`
+`wallter slideshow`
 
 ### Customizing the configuration
 
-`walter config`
+`wallter config`
 
 ## Configuration
 
-The configuration file is located at `~/.config/walter/config.toml`. You can customize the following settings:
+The configuration file is located at `~/.config/wallter/config.toml`. You can customize the following settings:
 
 * `api_key`: Your Wallhaven API key
 * `download_dir`: The directory to download wallpapers to

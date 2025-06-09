@@ -1,7 +1,7 @@
 use clap::{Arg, Command};
 
 pub fn parse_args() -> Command {
-    Command::new("walter")
+    Command::new("wallter")
         .about("A wallpaper management utility")
         .arg(
             Arg::new("search")
