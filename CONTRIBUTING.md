@@ -160,12 +160,10 @@ Please note that all contributors are expected to adhere to our [Code of Conduct
 # Create a new changeset
 jj new -m "feat: your feature description"
 
-# (Optional) Set a bookmark for your feature
+# Set a bookmark for your feature
 jj bookmark set feature/your-feature-name
 
-# Make changes, test, and update documentation
-
-# Update your commit message if needed
+# Update your commit message, if needed
 jj describe
 
 # Move your bookmark to the latest commit (if you made more commits)
