@@ -6,14 +6,15 @@ Unlock the full potential of your desktop with **Wallter**, the innovative appli
 
 ## Motivation
 
-**Wallter** was born out of a desire for a truly cross-platform, highly customizable, and automated wallpaper management solution. Existing tools often fall short in specific environments or lack the flexibility needed for power users:
+**Wallter** was born out of a desire for a truly **cross-platform, open-source, highly customizable, and automated** wallpaper management solution. Existing tools often fall short in specific environments, are proprietary, or lack the flexibility needed for power users:
 
-* **Variety (Linux):** While a great tool, it often struggles with Wayland, limiting its utility for users on modern Linux desktops and is not available on Windows.
-* **John's Background Switcher (Windows):** A popular choice, but its lack of a command-line interface and limited automation capabilities hinder advanced customization and integration into automated workflows.
+* **[Variety](https://github.com/varietywalls/variety) (Linux):** While a great tool, it often struggles with Wayland, limiting its utility for users on modern Linux desktops.
+* **[John's Background Switcher](https://johnsad.ventures/software/backgroundswitcher/) (Windows/Mac):** A popular **proprietary** choice, its lack of a command-line interface and limited automation capabilities hinder advanced customization and integration into automated workflows.
 
-**Wallter** aims to fill these gaps by providing:
+**Wallter** aims to fill these critical gaps by providing:
 
-* **Native Cross-Platform Support:** Built with Rust, `wallter` is designed from the ground up to work seamlessly across Windows, macOS, and Linux (including Wayland environments), ensuring a consistent experience regardless of your operating system.
+* **A Fully Open-Source Solution:** Providing transparency, fostering community contribution, and offering ultimate user control over their wallpaper management.
+* **Native Cross-Platform Support:** Built with Rust, `wallter` is designed from the ground up to work seamlessly across Windows, macOS, and Linux (including Wayland environments), ensuring a consistent and unified experience regardless of your operating system.
 * **Automation at its Core:** Its CLI-first design allows for easy integration into scripts, cron jobs, and custom automation routines, giving you unprecedented control.
 * **The Power of Rust:** Leveraging Rust's performance, safety, and robust ecosystem allows for a reliable and efficient application, while also serving as a personal project to expand a Rust-based `dotfiles` ecosystem.
 
@@ -21,7 +22,7 @@ Unlock the full potential of your desktop with **Wallter**, the innovative appli
 
 ## Features
 
-* **Dynamic Wallpaper Sourcing:** Seamlessly downloads and sets high-quality wallpapers from various online sources, starting with **Wallhaven**.
+* **Dynamic Wallpaper Sourcing:** Seamlessly downloads and sets high-quality wallpapers from **multiple online sources** (e.g., Wallhaven, Unsplash, Pixabay), with the flexibility to **add your own custom sources**. Wallpaper shuffling can intelligently pull from any configured source.
 * **Local Image Integration:** Utilize your personal image collections by designating custom directories for wallpaper selection.
 * **Intelligent Multi-Monitor Support:** Optimizes wallpaper display across diverse monitor setups, intelligently adapting to different resolutions, orientations, and positions.
 * **Automated Workflow Customization:** Execute custom commands both before and after setting wallpapers, allowing for personalized automation of your desktop environment.
@@ -38,7 +39,7 @@ Unlock the full potential of your desktop with **Wallter**, the innovative appli
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/craole-cc/wallter.git
+    git clone [https://github.com/craole-cc/wallter.git](https://github.com/craole-cc/wallter.git)
     ```
 
 2. **Navigate to the project directory:**
@@ -79,7 +80,7 @@ Unlock the full potential of your desktop with **Wallter**, the innovative appli
     wallter init
     ```
 
-    *Creates a default configuration file, typically located within your `Pictures/Wallter` directory (`~/<User Pictures Dir>/Wallter/config.toml`).*
+    *Creates a default configuration file, typically located within your `Pictures/Wallter` directory (`~/<Username>/Pictures/Wallter/config.toml`).*
 * **Download Wallpapers:**
 
     ```bash
@@ -113,7 +114,7 @@ Unlock the full potential of your desktop with **Wallter**, the innovative appli
 
 ## Configuration
 
-The core of **Wallter**'s customization lies in its `config.toml` file. By default, **Wallter** sets up its primary directories within your user's `Pictures` directory for cross-platform simplicity and ease of access. For example, on Windows, this might be `C:\Users\{Username}\Pictures\Wallter\`, and on Linux, `~/Pictures/Wallter/`.
+The core of **Wallter**'s customization lies in its `config.toml` file. By default, **Wallter** sets up its primary directories within your user's `Pictures` directory for cross-platform simplicity and ease of access. For example, on Windows, this might be `C:\Users\<Username>\Pictures\Wallter\` *(with 'Username' representing your actual username)*, and on Linux, `~/Pictures/Wallter/`.
 
 You can customize the following settings to tailor **Wallter** to your precise needs:
 
@@ -132,12 +133,24 @@ You can customize the following settings to tailor **Wallter** to your precise n
 
 ---
 
+## Contributing
+
+We welcome contributions from the community to help make **Wallter** even better! Whether you're reporting a bug, suggesting a new feature, or submitting code, your input is highly valued.
+
+Please see our comprehensive [Contributing Guide](CONTRIBUTING.md) for detailed instructions on how to get involved.
+
+### Code of Conduct
+
+All contributors are expected to adhere to **our** [Code of Conduct](CODE_OF_CONDUCT.md). Please read it carefully before participating.
+
+---
+
 ## Project Development
 
-For an in-depth look at **Wallter**'s development roadmap, current tasks, and planned milestones, please refer to the [MILESTONES](MILESTONES.md) file in the repository root.
+Our development [Roadmap](ROADMAP.md) provides an in-depth look at current tasks and planned milestones for **Wallter**.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for more information.
+This project is licensed under the MIT License. See the [License](LICENSE.md) file for more information.
