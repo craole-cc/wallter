@@ -51,11 +51,10 @@ out/
 #> Logs & Temp Files
 # ============================
 [lL]og*/
+*.log
 [aA]rchive/
 [tT]emp/
-*.log
-tmp/
-temp/
+[tT]mp/
 *.tmp
 *~
 

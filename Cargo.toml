@@ -10,20 +10,19 @@ unsafe_code = "forbid"
 unused = { level = "allow", priority = 1 }
 
 [dependencies]
-tokio = { version = "1.45.1", features = ["full"] }
-reqwest = { version = "0.12.19", features = ["json"] }
+chrono = { version = "0.4.41", features = ["serde"] }
+clap = { version = "4.5.40", features = ["derive"] }
+config = "0.15.11"
+directories = "6.0.0"
+image = "0.25.6"
+reqwest = { version = "0.12.20", features = ["json"] }
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 thiserror = "2.0.12"
-log = "0.4.27"
-pretty_env_logger = "0.5.0"
-env_logger = "0.11.8"
-clap = { version = "4.5.39", features = ["derive"] }
-config = "0.15.11"
-image = "0.25.6"
-directories = "6.0.0"
-chrono = { version = "0.4.41", features = ["serde"] }
+tokio = { version = "1.45.1", features = ["full"] }
 toml = "0.8.23"
+tracing = "0.1.41"
+# wallhaven = "0.2.0"
 winit = "0.30.11"
 
 [target.'cfg(windows)'.dependencies]
