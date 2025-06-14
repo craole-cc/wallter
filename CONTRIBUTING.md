@@ -8,20 +8,23 @@ We welcome and appreciate all contributions to the **Wallter** project! Whether 
 2. **Clone Your Fork:** Clone your forked repository to your local machine:
 
     ```bash
-    git clone [https://github.com/craole-cc/wallter.git](https://github.com/craole-cc/wallter.git)
+    git clone https://github.com/craole-cc/wallter.git
     cd wallter
     ```
 
-3. **Initialize Jujutsu (jj):** If you prefer using `jj` for version control (as the core developers do), you can initialize `jj` within your cloned Git repository:
+3. **Initialize Jujutsu (jj):** If you prefer using `jj` for version control (as the core developers do), initialize `jj` within your cloned Git repository:
 
     ```bash
     jj git init --colocate
     ```
 
-    *Note: This command initializes `jj` and links it to your existing Git repository's history and configuration. While `git` commands will still work for basic operations like cloning and pushing to GitHub, we encourage using `jj` for local development workflow due to its powerful features for history editing and and collaboration.*
+    *This command sets up `jj` to work alongside Git in the same repository. You can use either tool, but we encourage using `jj` for local development due to its powerful history editing and collaboration features.*
+
 4. **Set up Development Environment:**
     * Ensure you have [Rust](https://www.rust-lang.org/tools/install) and Cargo installed.
     * Run `cargo build` to verify everything is set up correctly.
+
+---
 
 ## How to Contribute
 
@@ -42,38 +45,138 @@ We welcome and appreciate all contributions to the **Wallter** project! Whether 
 * Explain why you believe it would be a valuable addition to **Wallter**.
 * Provide any mockups or examples if applicable.
 
+---
+
 ### 3. Submitting Code Contributions
 
 We welcome pull requests for bug fixes, new features, and improvements!
 
-* **Review Roadmap:** Refer to the [Roadmap](ROADMAP.md) document for an overview of planned features and current development priorities. This can help you find a suitable task or see where your proposed feature fits.
-* **Create a Branch/Changeset:**
-  * If using `jj`: `jj new -m "feat: brief description of your change"`
-  * If using `git`: `git checkout -b feature/your-feature-name`
-* **Implement Your Changes:**
-  * Write clean, idiomatic Rust code.
-  * Adhere to existing coding styles.
-  * Ensure your code is well-commented.
-  * Consider adding integration and unit tests for your changes.
-* **Test Your Changes:**
-  * Run existing tests: `cargo test`
-  * Add new tests as appropriate for new functionality or bug fixes.
-* **Update Documentation:**
-  * If your changes impact how **Wallter** is used (e.g., new CLI arguments, configuration options), update the `README.md`.
-  * If you're working on a milestone, update its status in `ROADMAP.md` if relevant to your contribution.
-* **Commit Your Work:**
-  * Write clear and concise commit messages using conventional commits (e.g., `feat: add new feature`, `fix: resolve bug`).
-  * In `jj`, your changes are automatically saved as you work. To finalize a changeset for pushing, ensure your working copy is on a new change or that the current change has a clear, complete description (`jj describe`).
-* **Open a Pull Request:**
-  * Push your branch/changesets to your fork on GitHub.
-    * If using `jj`: `jj git push --all` (or specific branches/bookmarks like `jj git push --branch <your-branch-name>`)
-    * If using `git`: `git push origin feature/your-feature-name`
-  * Open a pull request from your fork to the `main` branch of the `craole-cc/wallter` repository.
-  * Provide a detailed description of your changes in the pull request.
-  * Reference any related issues (e.g., `Closes #123`).
+#### **Review the Roadmap**
+
+Refer to the [Roadmap](ROADMAP.md) to find a suitable task or see where your proposed feature fits.
+
+#### **Create a Changeset or Branch**
+
+* **Using jj:**
+  Create a new changeset for your work. This is similar to starting a new branch in Git, but with jj you work with changesets and bookmarks.
+
+    ```bash
+    jj new -m "feat: brief description of your change"
+    # or, if you already have changes staged:
+    jj commit -m "feat: brief description of your change"
+    ```
+
+    To make your changes easy to push and reference, set a bookmark (jj's equivalent of a branch):
+
+    ```bash
+    jj bookmark set feature/your-feature-name
+    ```
+
+* **Using git:**
+
+    ```bash
+    git checkout -b feature/your-feature-name
+    ```
+
+#### **Implement Your Changes**
+
+* Write clean, idiomatic Rust code.
+* Adhere to existing coding styles.
+* Ensure your code is well-commented.
+* Add integration and unit tests as appropriate.
+
+#### **Test Your Changes**
+
+* Run existing tests:
+
+  ```bash
+  cargo test
+  ```
+
+* Add new tests for new functionality or bug fixes.
+
+#### **Update Documentation**
+
+* Update `README.md` and `ROADMAP.md` as needed.
+
+#### **Commit Your Work**
+
+* **With jj:**
+  Your changes are automatically tracked. To finalize your changeset and prepare for pushing, ensure your commit message is clear and complete:
+
+    ```bash
+    jj describe -m "feat: brief description of your change"
+    ```
+
+  If you set a bookmark, move it to your latest commit:
+
+    ```bash
+    jj bookmark move feature/your-feature-name
+    ```
+
+* **With git:**
+
+    ```bash
+    git add .
+    git commit -m "feat: brief description of your change"
+    ```
+
+#### **Push Your Changes**
+
+* **With jj:**
+  Push your bookmark to your fork on GitHub:
+
+    ```bash
+    jj git push --branch feature/your-feature-name
+    ```
+
+  Or, to push all your bookmarks:
+
+    ```bash
+    jj git push --all
+    ```
+
+* **With git:**
+
+    ```bash
+    git push origin feature/your-feature-name
+    ```
+
+#### **Open a Pull Request**
+
+* Open a pull request from your fork to the `main` branch of the `craole-cc/wallter` repository.
+* Provide a detailed description of your changes.
+* Reference any related issues (e.g., `Closes #123`).
+
+---
 
 ## Code of Conduct
 
 Please note that all contributors are expected to adhere to our [Code of Conduct](CODE_OF_CONDUCT.md).
 
+## Quick Reference: Jujutsu (jj) Workflow
+
+```bash
+# Create a new changeset
+jj new -m "feat: your feature description"
+
+# (Optional) Set a bookmark for your feature
+jj bookmark set feature/your-feature-name
+
+# Make changes, test, and update documentation
+
+# Update your commit message if needed
+jj describe
+
+# Move your bookmark to the latest commit (if you made more commits)
+jj bookmark move feature/your-feature-name
+
+# Push your changes to your fork
+jj git push --branch feature/your-feature-name
+```
+
+---
+
 Thank you for contributing to **Wallter**!
+
+---
