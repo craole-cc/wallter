@@ -1,6 +1,9 @@
 mod default;
 pub use default::*;
 
+mod api;
+pub use api::Config as Api;
+
 pub mod monitor;
 pub use monitor::Config as Monitor;
 

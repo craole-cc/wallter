@@ -22,11 +22,4 @@ thiserror = "2.0.12"
 tokio = { version = "1.45.1", features = ["full"] }
 toml = "0.8.23"
 tracing = "0.1.41"
-# wallhaven = "0.2.0"
 winit = "0.30.11"
-
-[target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3", features = ["winuser"] }
-
-[target.'cfg(unix)'.dependencies]
-xcb = "1.3"

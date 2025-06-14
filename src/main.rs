@@ -1,8 +1,8 @@
-use wallter::{config, Result};
+use wallter::{Result, config};
 
 fn main() -> Result<()> {
   println!("Welcome to wallter!");
-    let config = config::init()?;
-    println!("{config}");
-    Ok(())
+  let config = config::init()?;
+  println!("{config}");
+  Ok(())
 }
