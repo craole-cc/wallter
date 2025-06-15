@@ -1,10 +1,7 @@
 use super::Source;
 use crate::{Error, Result};
 use serde::{Deserialize, Serialize};
-use std::{
-  // collections::HashMap,
-  fmt::{self, Display, Formatter}
-};
+use std::fmt::{self, Display, Formatter};
 
 /// Global API configuration for all wallpaper sources.
 /// This acts as the main configuration struct for the `api` module.
@@ -26,14 +23,20 @@ impl Default for Config {
     //{ Define default sources directly here, including specific parameters }
     let wallhaven_source = Source {
       name: "wallhaven".into(),
-      base_url: "https://wallhaven.cc/api/v1/".into(),
+      base_url: "".into(),
+      requires_api_key: false, //? It can function without a key
+      wallhaven: Some(super::wallhaven::Params {
+        categories: Some((true, true, false)), // General & Anime
+        purity: Some((true, false, false)),    // SFW only
+        sorting: Some(crate::api::wallhaven::Sorting::Random),
+        ..Default::default()
+      }),
       ..Default::default()
     };
 
     let unsplash_source = Source {
       name: "unsplash".into(),
       base_url: "https://api.unsplash.com/".into(),
-      default_query: Some("random".into()),
       requires_api_key: true,
       ..Default::default()
     };
@@ -45,7 +48,8 @@ impl Default for Config {
       ..Default::default()
     };
 
-    let default_sources = vec![wallhaven_source, unsplash_source, pixabay_source];
+    let default_sources =
+      vec![wallhaven_source, unsplash_source, pixabay_source];
 
     //{ Define default rank order based on the default sources' names }
     let default_rank_names: Vec<String> = default_sources
@@ -78,10 +82,10 @@ impl Display for Config {
         .rank
         .iter()
         .position(|name| name == &source.name)
-        .map(|rank| (rank + 1).to_string()) //? Convert rank to String if found
-        .unwrap_or_else(|| "[N/A]".to_string()); //? Provide a default String if not found
+        .map(|rank| (rank + 1).to_string())
+        .unwrap_or_else(|| "[N/A]".to_string()); 
       printf!(f, "Rank", rank_display, PAD)?;
-      
+
       //{ Display source information }
       writeln!(f, "{source}")?;
     }

@@ -1,4 +1,4 @@
 mod default;
-mod wallhaven;
-
 pub use default::Api;
+
+pub mod wallhaven;
