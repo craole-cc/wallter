@@ -1,8 +1,8 @@
 #[macro_use]
 pub mod utils;
 
-// mod api;
-// pub use api::Api;
+mod api;
+pub use api::Api;
 
 mod error;
 pub use error::{Error, Result};
