@@ -38,13 +38,10 @@ pub struct Params {
 
 impl Display for Params {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-    const PAD: usize = 26; //? Indented padding
-
     printf!(
       f,
       "Default Query",
-      self.default_query.as_deref().unwrap_or("[None]"),
-      PAD
+      self.default_query.as_deref().unwrap_or("[None]")
     )?;
 
     if let Some(cats) = self.categories {
@@ -54,7 +51,7 @@ impl Display for Params {
         if cats.1 { "✓" } else { "✗" },
         if cats.2 { "✓" } else { "✗" }
       );
-      printf!(f, "Categories", cat_str, PAD)?;
+      printf!(f, "Categories", cat_str)?;
     }
     if let Some(purs) = self.purity {
       let pur_str = format!(
@@ -63,28 +60,28 @@ impl Display for Params {
         if purs.1 { "✓" } else { "✗" },
         if purs.2 { "✓" } else { "✗" }
       );
-      printf!(f, "Purity", pur_str, PAD)?;
+      printf!(f, "Purity", pur_str)?;
     }
     if let Some(sorting) = self.sorting {
-      printf!(f, "Sorting", format!("{sorting:?}"), PAD)?;
+      printf!(f, "Sorting", format!("{sorting:?}"))?;
     }
     if let Some(order) = self.order {
-      printf!(f, "Order", format!("{order:?}"), PAD)?;
+      printf!(f, "Order", format!("{order:?}"))?;
     }
     if let Some(range) = self.top_range {
-      printf!(f, "Top Range", format!("{range:?}"), PAD)?;
+      printf!(f, "Top Range", format!("{range:?}"))?;
     }
     if let Some(res) = &self.atleast {
-      printf!(f, "Min Resolution", res, PAD)?;
+      printf!(f, "Min Resolution", res)?;
     }
     if let Some(res) = &self.resolutions {
-      printf!(f, "Exact Resolutions", res, PAD)?;
+      printf!(f, "Exact Resolutions", res)?;
     }
     if let Some(ratio) = &self.ratios {
-      printf!(f, "Aspect Ratios", ratio, PAD)?;
+      printf!(f, "Aspect Ratios", ratio)?;
     }
     if let Some(color) = &self.colors {
-      printf!(f, "Color", color, PAD)?;
+      printf!(f, "Color", color)?;
     }
 
     Ok(())

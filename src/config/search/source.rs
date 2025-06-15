@@ -57,28 +57,21 @@ impl Source {
 
 impl Display for Source {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-    const PAD: usize = 24;
+    printf!(f, "Source Name", &self.name)?;
 
-    printf!(f, "Source Name", &self.name, PAD)?;
-
-    //? Only show base_url if it's relevant (not for our new Wallhaven
-    //? implementation)
+    //? Only show base_url if it's relevant
     if !self.base_url.is_empty() {
-      printf!(f, "Base URL", &self.base_url, PAD)?;
+      printf!(f, "Base URL", &self.base_url)?;
     }
 
-    printf!(
-      f,
-      "API Key",
-      self.api_key.as_deref().unwrap_or("[Not Set]"),
-      PAD
-    )?;
-    printf!(f, "Requires API Key", self.requires_api_key, PAD)?;
-    printf!(f, "Enabled (User)", self.enabled, PAD)?;
-    printf!(f, "Valid (Runtime)", self.valid, PAD)?;
+    printf!(f, "API Key", self.api_key.as_deref().unwrap_or("[Not Set]"))?;
+    printf!(f, "Requires API Key", self.requires_api_key)?;
+    printf!(f, "Enabled (User)", self.enabled)?;
+    printf!(f, "Valid (Runtime)", self.valid)?;
+    writeln!(f, "{:#?}", self.wallhaven)?;
 
     if let Some(params) = &self.wallhaven {
-      printf!(f, "Wallhaven Params", "", PAD)?;
+      printf!(f, "Wallhaven Params", "")?;
       write!(f, "{params}")?;
     }
     Ok(())

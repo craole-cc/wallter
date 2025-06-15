@@ -22,4 +22,7 @@ macro_rules! printf {
   ($f:expr, $key:expr, $value:expr, $pad:expr) => {
     $crate::utils::print::pout_field($f, $key, $value, $pad)
   };
+  ($f:expr, $key:expr, $value:expr) => {
+    $crate::utils::print::pout_field($f, $key, $value, 24)
+  };
 }

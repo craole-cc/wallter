@@ -1,5 +1,5 @@
-use super::Source;
-use crate::{Error, Result};
+use super::{Source, wallhaven::Params as Wallhaven};
+use crate::{Error, Result, api::wallhaven::Sorting};
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display, Formatter};
 
@@ -23,12 +23,13 @@ impl Default for Config {
     //{ Define default sources directly here, including specific parameters }
     let wallhaven_source = Source {
       name: "wallhaven".into(),
+      //? base_url is not used by our new API client, so it's empty.
       base_url: "".into(),
-      requires_api_key: false, //? It can function without a key
-      wallhaven: Some(super::wallhaven::Params {
+      requires_api_key: false,
+      wallhaven: Some(Wallhaven {
         categories: Some((true, true, false)), // General & Anime
-        purity: Some((true, false, false)),    // SFW only
-        sorting: Some(crate::api::wallhaven::Sorting::Random),
+        purity: Some((true, true, false)),     // SFW & Sketchy
+        sorting: Some(Sorting::Random),
         ..Default::default()
       }),
       ..Default::default()
@@ -72,19 +73,12 @@ impl Config {
 
 impl Display for Config {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-    //{ Set the padding width for alignment for main source details }
-    const PAD: usize = 24;
-
-    //{ Display the list of sources and their details }
-    for source in &self.sources {
+    for (i, source) in self.sources.iter().enumerate() {
       //{ Determine and display rank }
-      let rank_display = self
-        .rank
-        .iter()
-        .position(|name| name == &source.name)
-        .map(|rank| (rank + 1).to_string())
-        .unwrap_or_else(|| "[N/A]".to_string()); 
-      printf!(f, "Rank", rank_display, PAD)?;
+      if let Some(rank) = self.rank.iter().position(|name| name == &source.name)
+      {
+        printf!(f, "Rank", rank + 1)?;
+      }
 
       //{ Display source information }
       writeln!(f, "{source}")?;

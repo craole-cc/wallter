@@ -1,4 +1,4 @@
-use super::{Api, Monitor, Path, PathType, Slideshow};
+use super::{Monitor, Path, PathType, Search, Slideshow};
 use crate::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -11,7 +11,7 @@ pub struct Config {
   pub path: Path,
   pub monitor: Vec<Monitor>,
   pub slideshow: Slideshow,
-  pub source: Api
+  pub source: Search
 }
 
 impl Config {
@@ -47,9 +47,10 @@ impl Config {
 
     //{ Parse the contents of the config file based on the defined format }
     match path_config.config_type {
-      PathType::Toml => toml::from_str(&content).map_err(|e| Error::ConfigError(e.to_string())),
-      PathType::Json =>
-        serde_json::from_str(&content).map_err(|e| Error::ConfigError(e.to_string())),
+      PathType::Toml =>
+        toml::from_str(&content).map_err(|e| Error::ConfigError(e.to_string())),
+      PathType::Json => serde_json::from_str(&content)
+        .map_err(|e| Error::ConfigError(e.to_string()))
     }
   }
 
@@ -60,9 +61,10 @@ impl Config {
 
     //{ Serialize to appropriate format }
     let contents = match path_config.config_type {
-      PathType::Toml => toml::to_string(self).map_err(|e| Error::ConfigError(e.to_string()))?,
-      PathType::Json =>
-        serde_json::to_string_pretty(self).map_err(|e| Error::ConfigError(e.to_string()))?,
+      PathType::Toml =>
+        toml::to_string(self).map_err(|e| Error::ConfigError(e.to_string()))?,
+      PathType::Json => serde_json::to_string_pretty(self)
+        .map_err(|e| Error::ConfigError(e.to_string()))?
     };
 
     //{ Update the configuration file }
@@ -90,9 +92,9 @@ impl Display for Config {
 
     //~@ Source Section
     if self.source.sources.is_empty() {
-      writeln!(f, "  Source: No sources configured")?;
+      writeln!(f, "  Search: No sources configured")?;
     } else {
-      writeln!(f, "  Source:")?;
+      writeln!(f, "  Search:")?;
       writeln!(f, "{}", self.source)?;
     }
 

@@ -1,8 +1,8 @@
 mod default;
 pub use default::*;
 
-mod api;
-pub use api::Config as Api;
+mod search;
+pub use search::Config as Search;
 
 pub mod monitor;
 pub use monitor::Config as Monitor;
