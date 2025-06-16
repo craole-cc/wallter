@@ -1,4 +1,4 @@
-use crate::config::monitor::Resolution;
+use super::Size;
 use serde::{Deserialize, Serialize};
 use std::{
   cmp::Ordering,
@@ -7,7 +7,7 @@ use std::{
 
 /// Represents the orientation of a monitor based on its resolution.
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum Orientation {
+pub enum Config {
   /// Width > Height (e.g., 1920x1080)
   Landscape,
   /// Height > Width (e.g., 1080x1920)
@@ -16,8 +16,8 @@ pub enum Orientation {
   Square
 }
 
-impl Orientation {
-  pub fn from_resolution(res: &Resolution) -> Self {
+impl Config {
+  pub fn from_size(res: &Size) -> Self {
     match res.width.cmp(&res.height) {
       Ordering::Greater => Self::Landscape,
       Ordering::Less => Self::Portrait,
@@ -26,12 +26,12 @@ impl Orientation {
   }
 }
 
-impl Display for Orientation {
+impl Display for Config {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     match self {
-      Orientation::Landscape => write!(f, "Landscape"),
-      Orientation::Portrait => write!(f, "Portrait"),
-      Orientation::Square => write!(f, "Square")
+      Self::Landscape => write!(f, "Landscape"),
+      Self::Portrait => write!(f, "Portrait"),
+      Self::Square => write!(f, "Square")
     }
   }
 }

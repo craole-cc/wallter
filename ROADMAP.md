@@ -41,10 +41,10 @@ from WallHaven and set them as your desktop background.
       downloading wallpapers and interacting with online APIs.
     <!-- * **`wallhaven`**: For interacting specifically with the Wallhaven.cc API, enabling the fetching of wallpapers from this popular source. -->
   - [x] **CLI & Asynchronous Runtime**
-    - **`clap`**: For declarative command-line argument parsing, allowing users
-      to interact with `wallter` via the terminal.
-    - **`tokio`**: For providing an asynchronous runtime, essential for
-      efficient, non-blocking network requests and concurrent operations.
+    - [ ] **`clap`**: For declarative command-line argument parsing, allowing
+          users to interact with `wallter` via the terminal.
+    - [ ] **`tokio`**: For providing an asynchronous runtime, essential for
+          efficient, non-blocking network requests and concurrent operations.
   - [x] **System Interaction & UI Foundation**
     - **`directories`**: For platform-agnostic path discovery, helping `wallter`
       find standard user directories like Pictures for configuration and
@@ -52,20 +52,31 @@ from WallHaven and set them as your desktop background.
     <!-- * **`wallpaper`**: For cross-platform wallpaper setting, abstracting away OS-specific details to apply backgrounds across different operating systems. -->
     - **`winit`**: For cross-platform windowing and monitor enumeration, used to
       detect and manage connected displays for accurate multi-monitor support.
-  - [x] **Image Processing**
+    - **`dark-light`**: For cross-platform dark mode detection, enabling a
+      dynamic theme switch based on system preferences.
+  - [ ] **Image Processing**
     - **`image`**: For comprehensive image manipulation capabilities, enabling
       planned future features like grayscale, mosaic, and watermarking.
-  - [x] **Logging & Diagnostics**
+  - [ ] **Logging & Diagnostics**
     - **`tracing`**: For structured and contextual logging and diagnostics,
       providing powerful insights into application behavior for development and
-      debugging.
+      - debugging.
 
-- [ ] **Task 1.1.3: Basic Configuration Loading**
-  - [ ] Define a `Config` struct using `serde` to parse `config.toml`.
-  - [ ] Implement logic to load `~/.config/wallter/config.toml` (or create if
-        not exists with defaults).
-  - [ ] Ensure `api_key` and other initial configuration paths are correctly
-        read.
+- [x] **Task 1.1.3: Core Configuration Functionality**
+  - [x] Define a top-level `Config` struct that aggregates all other
+        configuration modules (`Path`, `Search`, `Source`, `Monitor`,
+        `Slideshow`).
+  - [x] Implement path management with a Path struct to handle all application
+        directories and a default location.
+  - [x] Implement functions to create all necessary directories on startup.
+  - [x] Implement Config::save() and Config::load() to handle serialization and
+        deserialization to/from TOML and JSON files.
+  - [x] Implement init() logic to load the config file or create a default one
+        if not found.
+  - [x] Define structs for Search and Source to manage API settings, including a
+        default list of sources (Wallhaven, Unsplash, etc.).
+  - [x] Implement Monitor::enumerate() using winit to detect connected displays
+        and populate the config on startup.
 
 - [ ] **Task 1.1.4: Implement WallHaven Search/Fetch Functionality**
   - [ ] Create a function that uses the `wallhaven` crate to search for

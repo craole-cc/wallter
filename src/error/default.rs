@@ -19,5 +19,8 @@ pub enum Error {
   MonitorError(String),
 
   #[error("Invalid settings: {0}")]
-  SettingsError(String)
+  SettingsError(String),
+
+  #[error("Color Mode Detection Error: {0}")]
+  ColorMode(#[from] dark_light::Error)
 }

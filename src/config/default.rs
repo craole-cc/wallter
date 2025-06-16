@@ -1,4 +1,4 @@
-use super::{Monitor, Path, PathType, Search, Slideshow};
+use super::{Color, Monitor, Path, PathType, Search, Slideshow};
 use crate::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -10,6 +10,7 @@ use std::{
 pub struct Config {
   pub path: Path,
   pub monitor: Vec<Monitor>,
+  pub color: Color,
   pub slideshow: Slideshow,
   pub source: Search
 }
@@ -31,8 +32,12 @@ impl Config {
       }
     };
 
+    //{ Detect the color mode and update the system's color mode }
+    let detected_color_mode = Color::get_effective_mode()?;
+    config.color.mode = detected_color_mode.mode;
+
     //{ Always enumerate current monitors and update the config }
-    let detected_monitors = Monitor::enumerate();
+    let detected_monitors = Monitor::get_info();
     config.monitor = detected_monitors;
 
     //{ Return the initialized config }
@@ -77,10 +82,10 @@ impl Display for Config {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     writeln!(f, "Configuration:")?;
 
-    //~@ Paths Section
+    //|-> Paths Section
     writeln!(f, "  Paths:\n{}", self.path)?;
 
-    //~@ Monitors Section
+    //|-> Monitors Section
     if self.monitor.is_empty() {
       writeln!(f, "  Monitors: No monitors detected")?;
     } else {
@@ -90,7 +95,10 @@ impl Display for Config {
       }
     }
 
-    //~@ Source Section
+    //|-> Color Section
+    writeln!(f, "  Colors:\n{:#?}", self.color)?;
+
+    //|-> Source Section
     if self.source.sources.is_empty() {
       writeln!(f, "  Search: No sources configured")?;
     } else {
@@ -98,7 +106,7 @@ impl Display for Config {
       writeln!(f, "{}", self.source)?;
     }
 
-    //~@ Slideshow Section
+    //|-> Slideshow Section
     if self.slideshow.sources.is_empty() {
       writeln!(f, "  Slideshow: No wallpaper sources configured")?;
     } else {
