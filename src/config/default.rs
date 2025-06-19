@@ -1,4 +1,4 @@
-use super::{Color, Monitor, Path, PathType, Search, Slideshow};
+use super::{Color, ColorMode, Monitor, Path, PathType, Search, Slideshow};
 use crate::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -32,9 +32,12 @@ impl Config {
       }
     };
 
-    //{ Detect the color mode and update the system's color mode }
-    let detected_color_mode = Color::get_effective_mode()?;
-    config.color.mode = detected_color_mode.mode;
+    //{ Detect the color mode defined in the config or enabled system-wide }
+    if config.color.mode == ColorMode::Auto {
+      //{ Resolve Auto mode to Light/Dark based on system theme }
+      let resolved_mode_from_auto = Color::get_effective_mode()?;
+      config.color.mode = resolved_mode_from_auto.mode;
+    }
 
     //{ Always enumerate current monitors and update the config }
     let detected_monitors = Monitor::get_info();
@@ -85,6 +88,9 @@ impl Display for Config {
     //|-> Paths Section
     writeln!(f, "  Paths:\n{}", self.path)?;
 
+    //|-> Color Section
+    writeln!(f, "  Colors:\n{}", self.color)?;
+
     //|-> Monitors Section
     if self.monitor.is_empty() {
       writeln!(f, "  Monitors: No monitors detected")?;
@@ -94,9 +100,6 @@ impl Display for Config {
         writeln!(f, "{monitor}")?;
       }
     }
-
-    //|-> Color Section
-    writeln!(f, "  Colors:\n{:#?}", self.color)?;
 
     //|-> Source Section
     if self.source.sources.is_empty() {

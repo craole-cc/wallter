@@ -1,3 +1,4 @@
+// TODO: Remove 'Error' from error definitions
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
   #[error("API error: {0}")]
@@ -22,5 +23,8 @@ pub enum Error {
   SettingsError(String),
 
   #[error("Color Mode Detection Error: {0}")]
-  ColorMode(#[from] dark_light::Error)
+  ColorMode(#[from] dark_light::Error),
+
+  #[error("Failed to set color mode: {0}")]
+  ColorModeSet(String),
 }

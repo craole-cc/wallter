@@ -20,7 +20,7 @@ impl Config {
   /// fails.
   pub fn get_effective_mode() -> Result<Self> {
     //{ Detect the color mode and update the config}
-    let mode = Mode::detect_system_mode()?;
+    let mode = Mode::detect_current()?;
     Ok(Self { mode })
   }
 }
