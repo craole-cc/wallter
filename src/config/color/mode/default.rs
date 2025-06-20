@@ -8,36 +8,14 @@ pub trait Manager {
   fn notify(&self) -> Result<()>;
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[derive(
+  Debug, Default, Serialize, Deserialize, PartialEq, Eq, Clone, Copy,
+)]
 pub enum Config {
   Light,
-  Dark
-}
-
-impl Default for Config {
-  /// Returns the default color configuration based on the system's current
-  /// theme. Attempts to detect the current mode and returns the corresponding
-  /// `Config`. Falls back to `Dark` mode if detection fails or if the
-  /// system's theme is unspecified.
-  fn default() -> Self {
-    let default_mode = Self::Dark;
-    match detect() {
-      Ok(Mode::Dark) => Self::Dark,
-      Ok(Mode::Light) => Self::Light,
-      Ok(Mode::Unspecified) => {
-        eprintln!(
-          "System color mode is unspecified.\nUsing default mode: {default_mode}"
-        );
-        default_mode
-      }
-      Err(e) => {
-        eprintln!(
-          "Failed to detect the system's color mode: {e}.\nUsing default mode: {default_mode}"
-        );
-        default_mode
-      }
-    }
-  }
+  Dark,
+  #[default]
+  Auto
 }
 
 impl Config {
@@ -48,22 +26,51 @@ impl Config {
     Ok(Self::default())
   }
 
+  fn get_current() -> Self {
+    let fallback = Self::Dark;
+    let detected = detect();
+    match detected {
+      Ok(Mode::Dark) => Self::Dark,
+      Ok(Mode::Light) => Self::Light,
+      Ok(Mode::Unspecified) => {
+        eprintln!(
+          "System color mode is unspecified.\nUsing default mode: {fallback}"
+        );
+        fallback
+      }
+      Err(e) => {
+        eprintln!(
+          "Failed to detect the system's color mode: {e}.\nUsing default
+mode: {fallback}"
+        );
+        fallback
+      }
+    }
+  }
+
   /// Toggles the current color mode between `Light` and `Dark`.
   /// This function detects the current mode using the default detection logic,
   /// switches to the opposite mode, and applies the change.
   /// Returns the new mode upon successful application.
   pub fn toggle() -> Result<Self> {
-    let current_mode = Self::default();
-    let desired_mode = match current_mode {
+    let current = Self::get_current();
+    let desired = match current {
       Self::Light => Self::Dark,
-      Self::Dark => Self::Light
+      Self::Dark => Self::Light,
+      Self::Auto => unreachable!("get_current always returns Light or Dark")
     };
-    desired_mode.apply().map(|_| desired_mode)
+    desired.apply().map(|_| desired)
   }
 
   pub fn apply(&self) -> Result<()> {
-    let current = Self::default();
-    let desired = *self;
+    let current = Self::get_current();
+    // let desired = *self;
+    let desired = match *self {
+      // Self::Light => Self::Light,
+      // Self::Dark => Self::Dark,
+      Self::Auto => current,
+      _ => *self
+    };
 
     //{ Early return if mode is already set }
     if current == desired {
@@ -110,7 +117,8 @@ impl Display for Config {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     match self {
       Self::Light => write!(f, "Light"),
-      Self::Dark => write!(f, "Dark")
+      Self::Dark => write!(f, "Dark"),
+      Self::Auto => write!(f, "Auto")
     }
   }
 }

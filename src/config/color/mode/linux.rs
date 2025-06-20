@@ -4,7 +4,6 @@
 //! This module attempts to detect the current desktop environment (KDE Plasma,
 //! GNOME) and uses environment-specific commands (e.g.,
 //! `plasma-apply-colorscheme`, `gsettings`) to apply the desired theme.
-//! 
 use super::Config;
 use crate::{Error, Result};
 use std::{env, process::Command};
@@ -84,7 +83,9 @@ impl DesktopEnvironment {
   fn set_gnome_gtk_theme(&self, config: Config) -> Result<()> {
     let gtk_theme = match config {
       Config::Dark => "Adwaita-dark",
-      Config::Light => "Adwaita"
+      Config::Light => "Adwaita",
+      Config::Auto =>
+        unreachable!("Auto mode is resolved to Light or Dark already"),
     };
 
     let status = Command::new("gsettings")
@@ -107,7 +108,9 @@ impl DesktopEnvironment {
   fn apply_kde_theme_config(&self, config: Config) -> Result<()> {
     let theme_name = match config {
       Config::Dark => "BreezeDark",
-      Config::Light => "BreezeLight"
+      Config::Light => "BreezeLight",
+      Config::Auto =>
+        unreachable!("Auto mode is resolved to Light or Dark already"),
     };
 
     let status = Command::new("plasma-apply-colorscheme")
@@ -136,7 +139,9 @@ impl DesktopEnvironment {
   fn apply_gnome_theme_config(&self, config: Config) -> Result<()> {
     let scheme_value = match config {
       Config::Dark => "prefer-dark",
-      Config::Light => "prefer-light"
+      Config::Light => "prefer-light",
+      Config::Auto =>
+        unreachable!("Auto mode is resolved to Light or Dark already"),
     };
 
     let status = Command::new("gsettings")
@@ -252,7 +257,9 @@ mod tests {
     for (config, expected) in test_cases {
       let actual_theme_name = match config {
         Config::Dark => "BreezeDark",
-        Config::Light => "BreezeLight"
+        Config::Light => "BreezeLight",
+        Config::Auto =>
+          unreachable!("Auto mode is resolved to Light or Dark already"),
       };
       assert_eq!(actual_theme_name, expected);
     }
@@ -278,13 +285,18 @@ mod tests {
   #[test]
   fn test_gnome_gtk_theme_mapping() {
     // Test GTK theme mapping from Config mode.
-    let test_cases =
-      [(Config::Dark, "Adwaita-dark"), (Config::Light, "Adwaita")];
+    let test_cases = [
+      (Config::Dark, "Adwaita-dark"),
+      (Config::Light, "Adwaita"),
+      (Config::Auto, "Adwaita")
+    ];
 
     for (config, expected) in test_cases {
       let actual_gtk_theme = match config {
         Config::Dark => "Adwaita-dark",
-        Config::Light => "Adwaita"
+        Config::Light => "Adwaita",
+        Config::Auto =>
+          unreachable!("Auto mode is resolved to Light or Dark already"),
       };
       assert_eq!(actual_gtk_theme, expected);
     }

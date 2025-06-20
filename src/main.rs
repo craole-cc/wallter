@@ -5,6 +5,5 @@ fn main() -> Result<()> {
 
   let config = config::init()?;
   println!("{config}");
-  // config::ColorMode::toggle()?;
   Ok(())
 }

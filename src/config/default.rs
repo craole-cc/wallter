@@ -32,12 +32,17 @@ impl Config {
       }
     };
 
-    //{ Detect the color mode defined in the config or enabled system-wide }
-    // if config.color.mode == ColorMode::Auto {
-    //   //{ Resolve Auto mode to Light/Dark based on system theme }
-    //   let resolved_mode_from_auto = Color::get_effective_mode()?;
-    //   config.color.mode = resolved_mode_from_auto.mode;
-    // }
+    //{ Apply color mode from config if it's explicit and differs from system }
+    match config.color.mode {
+      ColorMode::Light | ColorMode::Dark => {
+        // An explicit mode is set in the config.
+        // We need to ensure the system matches this explicit mode.
+        // The apply method itself checks if the system is already in the
+        // desired state.
+        config.color.mode.apply()?;
+      }
+      ColorMode::Auto => { /* Do nothing, let the system control the theme */ }
+    }
 
     //{ Always enumerate current monitors and update the config }
     let detected_monitors = Monitor::get_info();

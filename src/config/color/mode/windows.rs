@@ -61,7 +61,9 @@ impl super::Manager for Manager {
       })?;
     let value = match config {
       Config::Light => Self::LIGHT_MODE_REG_VALUE,
-      Config::Dark => Self::DARK_MODE_REG_VALUE
+      Config::Dark => Self::DARK_MODE_REG_VALUE,
+      Config::Auto =>
+        unreachable!("Auto mode is resolved to Light or Dark already"),
     };
 
     // Set the application theme (controls the appearance of most app windows).
