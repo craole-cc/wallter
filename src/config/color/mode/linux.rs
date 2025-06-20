@@ -1,24 +1,43 @@
-// src/theme/linux.rs
-use super::{Config, ThemeManager};
+//! Manages system color mode (light/dark) settings specifically for Linux
+//! desktop environments.
+//!
+//! This module attempts to detect the current desktop environment (KDE Plasma,
+//! GNOME) and uses environment-specific commands (e.g.,
+//! `plasma-apply-colorscheme`, `gsettings`) to apply the desired theme.
+//! 
+use super::Config;
 use crate::{Error, Result};
-use std::env;
-use std::process::Command;
+use std::{env, process::Command};
 
-/// Linux-specific theme manager supporting multiple desktop environments
-pub struct LinuxThemeManager;
+/// A manager for Linux system color mode settings.
+///
+/// This struct is a zero-sized type used as a marker to group Linux-specific
+/// theme management logic.
+pub struct Manager;
 
-/// Supported Linux desktop environments
+/// Represents supported Linux desktop environments and outcomes of detection.
 #[derive(Debug, PartialEq)]
 enum DesktopEnvironment {
+  /// KDE Plasma desktop environment.
   KDE,
+  /// GNOME desktop environment.
   GNOME,
+  /// An unsupported desktop environment, with the detected name.
   Unsupported(String),
+  /// The desktop environment could not be determined.
   Unknown
 }
 
-impl LinuxThemeManager {
-  /// Detects the current desktop environment
-  fn detect_desktop_environment(&self) -> DesktopEnvironment {
+impl DesktopEnvironment {
+  /// Detects the current Linux desktop environment.
+  ///
+  /// It primarily checks the `XDG_CURRENT_DESKTOP` environment variable.
+  ///
+  /// # Returns
+  ///
+  /// A `DesktopEnvironment` enum variant indicating the detected environment
+  /// or if it's unsupported/unknown.
+  fn detect() -> Self {
     let desktop = env::var("XDG_CURRENT_DESKTOP")
       .ok()
       .map(|d| d.to_lowercase());
@@ -31,44 +50,8 @@ impl LinuxThemeManager {
     }
   }
 
-  /// Sets theme for KDE desktop environment
-  fn set_kde_theme(&self, mode: Config) -> Result<()> {
-    let theme_name = match mode {
-      Config::Dark => "BreezeDark",
-      Config::Light => "BreezeLight",
-      Config::Auto =>
-        return Err(Error::ColorModeSet(
-          "Cannot set KDE theme to Auto mode".to_string()
-        )),
-    };
-
-    //{ Execute plasma-apply-colorscheme command }
-    let status = Command::new("plasma-apply-colorscheme")
-      .arg(theme_name)
-      .status()
-      .map_err(|e| {
-        Error::ColorModeSet(format!(
-          "Linux/KDE: Failed to execute plasma-apply-colorscheme: {}",
-          e
-        ))
-      })?;
-
-    if !status.success() {
-      return Err(Error::ColorModeSet(
-        "Linux/KDE: plasma-apply-colorscheme command failed".to_string()
-      ));
-    }
-
-    //{ Also try to set the color scheme via kwriteconfig5 for persistence }
-    if let Err(e) = self.set_kde_persistent_theme(theme_name) {
-      eprintln!("Warning: Failed to set persistent KDE theme: {}", e);
-      //? Continue - the theme is still set via plasma-apply-colorscheme
-    }
-
-    Ok(())
-  }
-
-  /// Sets persistent KDE theme configuration
+  /// Attempts to set the KDE color scheme persistently using `kwriteconfig5`.
+  /// This is a helper method for `apply_theme`.
   fn set_kde_persistent_theme(&self, theme_name: &str) -> Result<()> {
     let status = Command::new("kwriteconfig5")
       .args([
@@ -82,33 +65,80 @@ impl LinuxThemeManager {
       ])
       .status()
       .map_err(|e| {
-        Error::ColorModeSet(format!(
+        Error::ColorMode(format!(
           "Linux/KDE: Failed to execute kwriteconfig5: {}",
           e
         ))
       })?;
 
     if !status.success() {
-      return Err(Error::ColorModeSet(
+      return Err(Error::ColorMode(
         "Linux/KDE: kwriteconfig5 command failed".to_string()
       ));
     }
-
     Ok(())
   }
 
-  /// Sets theme for GNOME desktop environment
-  fn set_gnome_theme(&self, mode: Config) -> Result<()> {
-    let scheme_value = match mode {
-      Config::Dark => "prefer-dark",
-      Config::Light => "prefer-light",
-      Config::Auto =>
-        return Err(Error::ColorModeSet(
-          "Cannot set GNOME theme to Auto mode".to_string()
-        )),
+  /// Sets the GTK theme for GNOME applications using `gsettings`.
+  /// This is a helper method for `apply_theme`.
+  fn set_gnome_gtk_theme(&self, config: Config) -> Result<()> {
+    let gtk_theme = match config {
+      Config::Dark => "Adwaita-dark",
+      Config::Light => "Adwaita"
     };
 
-    //{ Set color scheme via gsettings }
+    let status = Command::new("gsettings")
+      .args(["set", "org.gnome.desktop.interface", "gtk-theme", gtk_theme])
+      .status()
+      .map_err(|e| {
+        Error::ColorMode(format!("Linux/GNOME: Failed to set GTK theme: {e}"))
+      })?;
+
+    if !status.success() {
+      return Err(Error::ColorMode(
+        "Linux/GNOME: Failed to set GTK theme".to_string()
+      ));
+    }
+    Ok(())
+  }
+
+  /// Applies the KDE color theme.
+  /// This is a helper method for `apply_theme`.
+  fn apply_kde_theme_config(&self, config: Config) -> Result<()> {
+    let theme_name = match config {
+      Config::Dark => "BreezeDark",
+      Config::Light => "BreezeLight"
+    };
+
+    let status = Command::new("plasma-apply-colorscheme")
+      .arg(theme_name)
+      .status()
+      .map_err(|e| {
+        Error::ColorMode(format!(
+          "Linux/KDE: Failed to execute plasma-apply-colorscheme: {e}"
+        ))
+      })?;
+
+    if !status.success() {
+      return Err(Error::ColorMode(
+        "Linux/KDE: plasma-apply-colorscheme command failed".to_string()
+      ));
+    }
+
+    if let Err(e) = self.set_kde_persistent_theme(theme_name) {
+      eprintln!("Warning: Failed to set persistent KDE theme: {e}");
+    }
+    Ok(())
+  }
+
+  /// Applies the GNOME color theme.
+  /// This is a helper method for `apply_theme`.
+  fn apply_gnome_theme_config(&self, config: Config) -> Result<()> {
+    let scheme_value = match config {
+      Config::Dark => "prefer-dark",
+      Config::Light => "prefer-light"
+    };
+
     let status = Command::new("gsettings")
       .args([
         "set",
@@ -118,72 +148,45 @@ impl LinuxThemeManager {
       ])
       .status()
       .map_err(|e| {
-        Error::ColorModeSet(format!(
-          "Linux/GNOME: Failed to execute gsettings: {}",
-          e
+        Error::ColorMode(format!(
+          "Linux/GNOME: Failed to execute gsettings: {e}"
         ))
       })?;
 
     if !status.success() {
-      return Err(Error::ColorModeSet(
+      return Err(Error::ColorMode(
         "Linux/GNOME: gsettings set color-scheme command failed".to_string()
       ));
     }
 
-    //{ Also set GTK theme for older applications }
-    if let Err(e) = self.set_gnome_gtk_theme(mode) {
-      eprintln!("Warning: Failed to set GTK theme: {}", e);
-      //? Continue - the main color scheme is still set
+    if let Err(e) = self.set_gnome_gtk_theme(config) {
+      eprintln!("Warning: Failed to set GTK theme: {e}");
     }
-
     Ok(())
   }
 
-  /// Sets GTK theme for GNOME applications
-  fn set_gnome_gtk_theme(&self, mode: Config) -> Result<()> {
-    let gtk_theme = match mode {
-      Config::Dark => "Adwaita-dark",
-      Config::Light => "Adwaita",
-      Config::Auto => return Ok(()) // Skip GTK theme for Auto
-    };
-
-    let status = Command::new("gsettings")
-      .args(["set", "org.gnome.desktop.interface", "gtk-theme", gtk_theme])
-      .status()
-      .map_err(|e| {
-        Error::ColorModeSet(format!(
-          "Linux/GNOME: Failed to set GTK theme: {}",
-          e
-        ))
-      })?;
-
-    if !status.success() {
-      return Err(Error::ColorModeSet(
-        "Linux/GNOME: Failed to set GTK theme".to_string()
-      ));
-    }
-
-    Ok(())
-  }
-}
-
-impl ThemeManager for LinuxThemeManager {
-  fn set_theme(&self, mode: Config) -> Result<()> {
-    let desktop_env = self.detect_desktop_environment();
-
-    match desktop_env {
-      DesktopEnvironment::KDE => self.set_kde_theme(mode),
-      DesktopEnvironment::GNOME => self.set_gnome_theme(mode),
-      DesktopEnvironment::Unsupported(ref desktop) => {
-        //? Unsupported desktop environment
+  /// Applies the specified color mode to the detected desktop environment.
+  ///
+  /// # Arguments
+  ///
+  /// * `config` - The desired color mode (`Light` or `Dark`) to apply.
+  ///
+  /// # Errors
+  ///
+  /// Returns `Error::ColorMode` if setting the theme fails for a supported
+  /// environment. For unsupported or unknown environments, it prints a message
+  /// to `stderr` and returns `Ok(())`.
+  fn apply_theme(&self, config: Config) -> Result<()> {
+    match self {
+      DesktopEnvironment::KDE => self.apply_kde_theme_config(config),
+      DesktopEnvironment::GNOME => self.apply_gnome_theme_config(config),
+      DesktopEnvironment::Unsupported(ref desktop_name) => {
         eprintln!(
-          "Unsupported Linux desktop environment for theme setting: {}",
-          desktop
+          "Unsupported Linux desktop environment for theme setting: {desktop_name}"
         );
         Ok(())
       }
       DesktopEnvironment::Unknown => {
-        //? Could not determine desktop environment
         eprintln!(
           "Could not determine Linux desktop environment for theme setting."
         );
@@ -193,84 +196,103 @@ impl ThemeManager for LinuxThemeManager {
   }
 }
 
+impl super::Manager for Manager {
+  /// Sets the Linux system color mode based on the detected desktop
+  /// environment.
+  ///
+  /// # Arguments
+  ///
+  /// * `mode` - The desired color mode (`Light` or `Dark`) to apply.
+  ///
+  /// # Errors
+  ///
+  /// Returns `Error::ColorMode` if setting the theme fails for a supported
+  /// environment. For unsupported or unknown environments, it prints a message
+  /// to `stderr` and returns `Ok(())`.
+  fn set(&self, mode: Config) -> Result<()> {
+    let desktop_env = DesktopEnvironment::detect();
+    desktop_env.apply_theme(mode)
+  }
+
+  /// Notifies other running applications of a theme change (Linux specific).
+  ///
+  /// On Linux, there isn't a universal, standardized broadcast mechanism for
+  /// theme changes that all applications listen to in the same way as on
+  /// Windows. Therefore, this function is currently a no-op.
+  ///
+  /// # Returns
+  ///
+  /// Always returns `Ok(())`.
+  fn notify(&self) -> Result<()> {
+    // Future enhancements could attempt DE-specific notifications if available.
+    Ok(())
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
 
   #[test]
   fn test_desktop_environment_detection() {
-    let manager = LinuxThemeManager;
+    let manager = Manager;
 
-    //{ Test desktop environment detection logic }
-    //? This test doesn't actually set environment variables
-    //? but tests the detection logic structure
-    let _desktop = manager.detect_desktop_environment();
-    //? Can't assert specific values since it depends on test environment
+    // This test primarily checks that the detection logic runs without
+    // panicking. Asserting specific outcomes is difficult without mocking
+    // environment variables.
+    let _desktop = DesktopEnvironment::detect();
   }
 
   #[test]
   fn test_kde_theme_mapping() {
-    //{ Test KDE theme name mapping }
+    // Test KDE theme name mapping from Config mode.
     let test_cases =
       [(Config::Dark, "BreezeDark"), (Config::Light, "BreezeLight")];
 
     for (config, expected) in test_cases {
-      let theme_name = match config {
+      let actual_theme_name = match config {
         Config::Dark => "BreezeDark",
-        Config::Light => "BreezeLight",
-        Config::Auto => unreachable!()
+        Config::Light => "BreezeLight"
       };
-      assert_eq!(theme_name, expected);
+      assert_eq!(actual_theme_name, expected);
     }
   }
 
   #[test]
   fn test_gnome_scheme_mapping() {
-    //{ Test GNOME color scheme mapping }
+    // Test GNOME color scheme mapping from Config mode.
     let test_cases = [
       (Config::Dark, "prefer-dark"),
       (Config::Light, "prefer-light")
     ];
 
     for (config, expected) in test_cases {
-      let scheme_value = match config {
+      let actual_scheme_value = match config {
         Config::Dark => "prefer-dark",
-        Config::Light => "prefer-light",
-        Config::Auto => unreachable!()
+        Config::Light => "prefer-light"
       };
-      assert_eq!(scheme_value, expected);
+      assert_eq!(actual_scheme_value, expected);
     }
   }
 
   #[test]
   fn test_gnome_gtk_theme_mapping() {
-    //{ Test GTK theme mapping }
+    // Test GTK theme mapping from Config mode.
     let test_cases =
       [(Config::Dark, "Adwaita-dark"), (Config::Light, "Adwaita")];
 
     for (config, expected) in test_cases {
-      let gtk_theme = match config {
+      let actual_gtk_theme = match config {
         Config::Dark => "Adwaita-dark",
-        Config::Light => "Adwaita",
-        Config::Auto => continue
+        Config::Light => "Adwaita"
       };
-      assert_eq!(gtk_theme, expected);
+      assert_eq!(actual_gtk_theme, expected);
     }
   }
 
   #[test]
-  fn test_linux_auto_error() {
-    let manager = LinuxThemeManager;
-
-    //{ Linux theme setting should reject Auto mode }
-    let result = manager.set_theme(Config::Auto);
-    //? Result depends on detected desktop environment
-    //? but Auto should be handled gracefully
-  }
-
-  #[test]
   fn test_desktop_environment_enum() {
-    //{ Test DesktopEnvironment enum variants }
+    // Basic structural test for DesktopEnvironment enum variants.
     let kde = DesktopEnvironment::KDE;
     let gnome = DesktopEnvironment::GNOME;
     let unknown = DesktopEnvironment::Unknown;
@@ -280,7 +302,7 @@ mod tests {
     assert_ne!(unknown, unsupported);
   }
 
-  //? Integration tests would require actual desktop environment
-  //? and should be run in controlled Linux environments with
-  //? the appropriate DE tools installed
+  // Note: Integration tests for theme setting would require an actual Linux
+  // desktop environment and the necessary command-line tools (gsettings,
+  // plasma-apply-colorscheme, kwriteconfig5) to be installed.
 }

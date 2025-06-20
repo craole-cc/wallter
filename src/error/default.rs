@@ -22,9 +22,6 @@ pub enum Error {
   #[error("Invalid settings: {0}")]
   SettingsError(String),
 
-  #[error("Color Mode Detection Error: {0}")]
-  ColorMode(#[from] dark_light::Error),
-
-  #[error("Failed to set color mode: {0}")]
-  ColorModeSet(String),
+  #[error("Color mode error: {0}")]
+  ColorMode(String),
 }

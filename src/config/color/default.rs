@@ -1,47 +1,53 @@
-use super::Mode;
-use crate::{Error, Result};
-use dark_light::{Mode as DarkLightMode, detect};
-use serde::{Deserialize, Serialize};
-use std::{
-  // cell::RefCell,
-  fmt::{self, Display, Formatter}
-};
+//! Defines the configuration for user-specified color preferences,
+//! including the system color mode (light/dark) and a list of
+//! color tags for wallpaper filtering.
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+use super::Mode;
+use serde::{Deserialize, Serialize};
+use std::fmt::{self, Display, Formatter};
+
+/// Holds user-defined color preferences, including system mode and color tags.
+///
+/// This configuration manages:
+/// 1. The desired system color mode (Light/Dark), which can be applied system-wide.
+/// 2. A list of color names or tags for filtering/tagging wallpapers.
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Config {
-  pub mode: Mode
+  /// The desired system color mode (Light/Dark).
+  pub mode: Mode,
+  /// A list of color names or tags specified by the user.
+  pub colors: Vec<String>
 }
 
 impl Config {
-  /// Returns the effective color mode.
-  /// If the configured mode is `Auto`, this method attempts to detect the
-  /// current system theme.
-  /// Falls back to `Mode::Dark` if detection for `Auto` is unspecified or
-  /// fails.
-  pub fn get_effective_mode() -> Result<Self> {
-    //{ Detect the color mode and update the config}
-    let mode = Mode::detect_current()?;
-    Ok(Self { mode })
+  /// Creates a new `Config` with a specified mode and list of colors.
+  pub fn new(mode: Mode, colors: Vec<String>) -> Self {
+    Self { mode, colors }
+  }
+
+  /// Sets the system color mode for the `Config` instance.
+  pub fn with_mode(mut self, mode: Mode) -> Self {
+    self.mode = mode;
+    self
+  }
+
+  /// Sets the list of color tags for the `Config` instance.
+  pub fn with_colors(mut self, colors: Vec<String>) -> Self {
+    self.colors = colors;
+    self
   }
 }
 
 impl Display for Config {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-    let color_mode_str = match &self.mode {
-      Mode::Light => "Light",
-      Mode::Dark => "Dark",
-      Mode::Auto => {
-        // If mode is Auto, try to detect current system theme for display
-        match detect() {
-          Ok(DarkLightMode::Light) => "Auto (Currently Light)",
-          Ok(DarkLightMode::Dark) => "Auto (Currently Dark)",
-          Ok(DarkLightMode::Unspecified) => "Auto (System Unspecified)",
-          Err(_) => "Auto (Detection Failed)"
-        }
-      }
+    printf!(f, "Mode", self.mode)?;
+
+    if self.colors.is_empty() {
+      printf!(f, "Colors", "None specified")?;
+    } else {
+      printf!(f, "Colors", self.colors.join(", "))?;
     };
 
-    printf!(f, "Mode", color_mode_str)?;
     Ok(())
   }
 }

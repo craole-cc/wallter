@@ -6,7 +6,7 @@ authors = ["Craig 'craole' Cole <cc@craole.com>"]
 description = "A modular wallpaper management utility"
 
 [lints.rust]
-unsafe_code = "forbid"
+unsafe_code = "deny"
 unused = { level = "allow", priority = 1 }
 
 [dependencies]
@@ -23,8 +23,10 @@ thiserror = "2.0.12"
 tokio = { version = "1.45.1", features = ["full"] }
 toml = "0.8.23"
 tracing = "0.1.41"
+winapi = { version = "0.3", features = ["winuser", "ntdef"] }
 winit = "0.30.11"
 winreg = "0.55.0"
 
 [features]
+default = ["windows-broadcast"]
 windows-broadcast = []

@@ -33,11 +33,11 @@ impl Config {
     };
 
     //{ Detect the color mode defined in the config or enabled system-wide }
-    if config.color.mode == ColorMode::Auto {
-      //{ Resolve Auto mode to Light/Dark based on system theme }
-      let resolved_mode_from_auto = Color::get_effective_mode()?;
-      config.color.mode = resolved_mode_from_auto.mode;
-    }
+    // if config.color.mode == ColorMode::Auto {
+    //   //{ Resolve Auto mode to Light/Dark based on system theme }
+    //   let resolved_mode_from_auto = Color::get_effective_mode()?;
+    //   config.color.mode = resolved_mode_from_auto.mode;
+    // }
 
     //{ Always enumerate current monitors and update the config }
     let detected_monitors = Monitor::get_info();

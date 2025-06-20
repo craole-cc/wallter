@@ -1,5 +1,5 @@
 mod default;
-pub use default::{Config, ThemeManager};
+pub use default::{Config, Manager};
 
 // Platform-specific modules
 #[cfg(target_os = "linux")]

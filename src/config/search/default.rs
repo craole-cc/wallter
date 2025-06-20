@@ -13,7 +13,7 @@ pub struct Config {
   /// The ordered list of source names by priority. When fetching, the
   /// application will attempt to use sources in this order until a wallpaper
   /// is successfully retrieved.
-  pub rank: Vec<String>
+  pub ordered: Vec<String>
 }
 
 impl Default for Config {
@@ -60,7 +60,7 @@ impl Default for Config {
 
     Self {
       sources: default_sources,
-      rank: default_rank_names
+      ordered: default_rank_names
     }
   }
 }
@@ -75,7 +75,7 @@ impl Display for Config {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     for (i, source) in self.sources.iter().enumerate() {
       //{ Determine and display rank }
-      if let Some(rank) = self.rank.iter().position(|name| name == &source.name)
+      if let Some(rank) = self.ordered.iter().position(|name| name == &source.name)
       {
         printf!(f, "Rank", rank + 1)?;
       }
