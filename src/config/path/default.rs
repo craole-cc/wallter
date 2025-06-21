@@ -183,14 +183,14 @@ impl Type {
 
 impl Display for Config {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-    //{ Set the padding width for alignment }
-    const PAD: usize = 24;
-
-    printf!(f, "Home Directory", self.home_dir.display(), PAD)?;
-    printf!(f, "Downloads Directory", self.downloads_dir.display(), PAD)?;
-    printf!(f, "Favorites Directory", self.favorites_dir.display(), PAD)?;
-    printf!(f, "Wallpaper Directory", self.wallpaper_dir.display(), PAD)?;
-    printf!(f, "Config File", self.config_file.display(), PAD)?;
+    printf!(f, "Home Directory", self.home_dir.display())?;
+    printf!(f, "Downloads Directory", self.downloads_dir.display())?;
+    printf!(f, "Favorites Directory", self.favorites_dir.display())?;
+    printf!(f, "Config File", self.config_file.display())?;
+    // for monitor in Monitor::get_info() {
+    //   let wallpaper_dir = self.get_wallpaper_dir(&monitor);
+    //   printf!(f, "Wallpaper Directory", wallpaper_dir.display())?;
+    // }
     Ok(())
   }
 }
