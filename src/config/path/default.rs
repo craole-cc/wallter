@@ -1,4 +1,4 @@
-use crate::{Error, Result};
+use crate::{Error, Result, config::Monitor};
 use serde::{Deserialize, Serialize};
 use std::{
   fmt::{self, Display, Formatter},
@@ -6,6 +6,7 @@ use std::{
   io::Write,
   path::{Path, PathBuf}
 };
+use winit::monitor;
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy)]
 pub enum Type {
@@ -85,12 +86,32 @@ impl Config {
     Ok(())
   }
 
+  /// Creates ratio and resolution-specific subdirectories within the wallpaper
+  /// directory.
+  pub fn create_wallpaper_dirs(&self, monitors: &[Monitor]) -> Result<()> {
+    for monitor in monitors {
+      let wallpaper_dir = self.get_wallpaper_dir(monitor);
+      create_dir_all(&wallpaper_dir)?;
+    }
+    Ok(())
+  }
+
+  /// Returns the path to the ratio-specific subdirectory within the wallpaper
+  /// directory.
+  pub fn get_wallpaper_dir(&self, monitor: &Monitor) -> PathBuf {
+    let monitor = &monitor.size;
+    let ratio_dir = monitor.ratio_str();
+    let resolution_dir = monitor.resolution_str();
+    self.wallpaper_dir.join(ratio_dir).join(resolution_dir)
+  }
+
   /// Create all necessary directories (home, downloads, favorites, wallpaper).
   pub fn create_config_dirs(&self) -> Result<()> {
     create_dir_all(&self.home_dir)?;
     create_dir_all(&self.downloads_dir)?;
     create_dir_all(&self.favorites_dir)?;
     create_dir_all(&self.wallpaper_dir)?;
+
     Ok(())
   }
 

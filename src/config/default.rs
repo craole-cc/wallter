@@ -4,13 +4,13 @@ use crate::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::{
   fmt::{self, Display, Formatter},
-  fs::{read_to_string, write}
+  fs::{create_dir_all, read_to_string, write}
 };
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Config {
   pub path: Path,
-  pub monitor: Vec<Monitor>,
+  pub monitors: Vec<Monitor>,
   pub color: Color,
   pub slideshow: Slideshow,
   pub source: Search
@@ -46,8 +46,11 @@ impl Config {
     }
 
     //{ Always enumerate current monitors and update the config }
-    let detected_monitors = Monitor::get_info();
-    config.monitor = detected_monitors;
+    let mut detected_monitors = Monitor::get_info();
+    config.monitors = detected_monitors;
+
+    //{ Ensure the wallpaper subdirs exist }
+    config.path.create_wallpaper_dirs(&config.monitors)?;
 
     //{ Return the initialized config }
     Ok(config)
@@ -95,33 +98,33 @@ impl Display for Config {
     writeln!(f, "  Paths:\n{}", self.path)?;
 
     //|-> Color Section
-    writeln!(f, "  Colors:\n{}", self.color)?;
+    // writeln!(f, "  Colors:\n{}", self.color)?;
 
     //|-> Monitors Section
-    if self.monitor.is_empty() {
+    if self.monitors.is_empty() {
       writeln!(f, "  Monitors: No monitors detected")?;
     } else {
       writeln!(f, "  Monitors:")?;
-      for monitor in &self.monitor {
+      for monitor in &self.monitors {
         writeln!(f, "{monitor}")?;
       }
     }
 
-    //|-> Source Section
-    if self.source.sources.is_empty() {
-      writeln!(f, "  Search: No sources configured")?;
-    } else {
-      writeln!(f, "  Search:")?;
-      writeln!(f, "{}", self.source)?;
-    }
+    // //|-> Source Section
+    // if self.source.sources.is_empty() {
+    //   writeln!(f, "  Search: No sources configured")?;
+    // } else {
+    //   writeln!(f, "  Search:")?;
+    //   writeln!(f, "{}", self.source)?;
+    // }
 
-    //|-> Slideshow Section
-    if self.slideshow.sources.is_empty() {
-      writeln!(f, "  Slideshow: No wallpaper sources configured")?;
-    } else {
-      writeln!(f, "  Slideshow:")?;
-      writeln!(f, "{}", self.slideshow)?;
-    }
+    // //|-> Slideshow Section
+    // if self.slideshow.sources.is_empty() {
+    //   writeln!(f, "  Slideshow: No wallpaper sources configured")?;
+    // } else {
+    //   writeln!(f, "  Slideshow:")?;
+    //   writeln!(f, "{}", self.slideshow)?;
+    // }
 
     Ok(())
   }

@@ -4,6 +4,8 @@ use std::{
   cell::RefCell,
   fmt::{self, Display, Formatter}
 };
+use crate::config::path::Config as PathConfig;
+use std::path::PathBuf;
 use winit::{
   application::ApplicationHandler,
   dpi::{PhysicalPosition, PhysicalSize},
@@ -26,8 +28,8 @@ pub struct Config {
   pub position: Position,
   /// The monitor's scale factor (DPI scaling, e.g., 1.0 for 100%).
   pub scale: f32,
-  /// Whether the monitor is the primary monitor.
-  pub primary: bool
+  /// Whether the monitor is the primary monitor. (Windows only)
+  pub primary: bool,
 }
 
 impl Config {
@@ -121,8 +123,9 @@ impl Display for Config {
     printf!(f, "Name", &self.name)?;
     printf!(f, "Height", self.size.height)?;
     printf!(f, "Width", self.size.width)?;
-    printf!(f, "Ratio", format!("{:.2}", self.size.ratio()))?;
+    printf!(f, "Resolution", self.size.resolution_str())?;
     printf!(f, "Orientation", &self.size.orientation())?;
+    printf!(f, "Ratio", self.size.ratio_str())?;
     printf!(f, "Scale", format!("{:.1}x", self.scale))?;
     printf!(f, "Position", &self.position)?;
     printf!(f, "Primary", self.primary)?;

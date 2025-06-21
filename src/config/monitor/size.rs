@@ -24,16 +24,33 @@ impl Config {
     if self.height > 0 {
       self.width as f32 / self.height as f32
     } else {
-      0.0 //? Handle division by zero, though unlikely for a monitor
+      0.0
+    }
+  }
+
+  /// Calculates the ratio (width / height).
+  pub fn ratio_str(&self) -> &'static str {
+    if self.height > 0 {
+      let ratio = self.width as f32 / self.height as f32;
+      let formatted = format!("{ratio:.2}");
+      let trimmed = formatted.trim_end_matches('0').trim_end_matches('.');
+      Box::leak(trimmed.to_string().into_boxed_str())
+    } else {
+      "0" // No trailing zero needed
     }
   }
 
   /// Returns the resolution as a Resolution struct.
-  pub fn resolution(&self) -> Self {
+  pub fn resolution(&self) -> Config {
     Self {
       width: self.width,
       height: self.height
     }
+  }
+
+  /// Returns the resolution as a formatted string (e.g., "1920x1080").
+  pub fn resolution_str(&self) -> &'static str {
+    Box::leak(format!("{}x{}", self.width, self.height).into_boxed_str())
   }
 
   /// Determines the orientation based on width and height.
@@ -46,10 +63,9 @@ impl Display for Config {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     write!(
       f,
-      "{}x{} [{:.2}] - {}",
-      self.width,
-      self.height,
-      self.ratio(),
+      "{} [{}] - {}",
+      self.resolution_str(),
+      self.ratio_str(),
       self.orientation()
     )?;
 

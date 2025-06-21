@@ -7,7 +7,9 @@ fn main() -> Result<()> {
   // nightlight::enable()
   // let config = wallter::config::Config::default();
   let config = wallter::config::init()?;
-  println!("Config: {config:#?}");
+  println!("Config: {config}");
+
+
 
   Ok(())
 }
