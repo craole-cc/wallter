@@ -58,7 +58,8 @@ impl Default for Config {
     let wallpaper_dir = home_dir.join("wallpaper");
     let config_name = "config".to_string();
     let config_type = Type::default();
-    let config_file = home_dir.join(format!("{}.{}", config_name, config_type.extension()));
+    let config_file =
+      home_dir.join(format!("{}.{}", config_name, config_type.extension()));
 
     Self {
       home_dir,
@@ -94,7 +95,10 @@ impl Config {
   }
 
   /// Create the config file if it does not exist.
-  pub fn create_config_file(&self, default_content: Option<&str>) -> Result<()> {
+  pub fn create_config_file(
+    &self,
+    default_content: Option<&str>
+  ) -> Result<()> {
     if !self.config_exists() {
       let mut file = File::create(&self.config_file)?;
       if let Some(content) = default_content {
@@ -152,7 +156,7 @@ impl Type {
         "json" => Type::Json,
         _ => Type::default()
       })
-      .ok_or_else(|| Error::ConfigError("Unknown config file format".into()))
+      .ok_or_else(|| Error::Config("Unknown config file format".into()))
   }
 }
 

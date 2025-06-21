@@ -47,8 +47,9 @@ pub struct Wallpaper {
   pub colors: Vec<String>,
   pub path: String,
   pub thumbs: Thumbnails,
-  // The 'tags' field is only present in the detailed wallpaper view (`/w/{id}`).
-  // It is optional to handle both search results and detailed views with one struct.
+  // The 'tags' field is only present in the detailed wallpaper view
+  // (`/w/{id}`). It is optional to handle both search results and detailed
+  // views with one struct.
   pub tags: Option<Vec<Tag>>
 }
 
@@ -316,12 +317,13 @@ impl Api {
     let mut request = self.client.get(&url).query(params);
 
     // Add API key to header if available.
-    // The API also allows it as a query param `?apikey=...`, but header is cleaner.
+    // The API also allows it as a query param `?apikey=...`, but header is
+    // cleaner.
     if let Some(key) = &self.api_key {
       request = request.header("X-API-Key", key);
     }
 
-    let response = request.send().await.map_err(Error::NetworkError)?;
+    let response = request.send().await.map_err(Error::Network)?;
 
     if !response.status().is_success() {
       let status = response.status();
@@ -329,7 +331,7 @@ impl Api {
         .text()
         .await
         .unwrap_or_else(|_| "Could not read error body.".to_string());
-      return Err(Error::ApiError(format!(
+      return Err(Error::API(format!(
         "API request failed with status {status}: {error_text}"
       )));
     }
@@ -337,12 +339,15 @@ impl Api {
     response
       .json::<T>()
       .await
-      .map_err(|e| Error::ApiError(e.to_string()))
+      .map_err(|e| Error::API(e.to_string()))
   }
 
   /// Searches for wallpapers on Wallhaven.
   /// Returns a `PaginatedResponse` containing the wallpapers and metadata.
-  pub async fn search(&self, params: &SearchParams) -> Result<PaginatedResponse> {
+  pub async fn search(
+    &self,
+    params: &SearchParams
+  ) -> Result<PaginatedResponse> {
     let url = format!("{}/search", self.base_url);
     let mut query_params = Vec::new();
 
@@ -424,7 +429,8 @@ impl Api {
   /// An API key is required to view NSFW wallpapers.
   pub async fn get_wallpaper_details(&self, id: &str) -> Result<Wallpaper> {
     let url = format!("{}/w/{}", self.base_url, id);
-    let response: WallpaperDetailsResponse = self.send_request(url, &[]).await?;
+    let response: WallpaperDetailsResponse =
+      self.send_request(url, &[]).await?;
     Ok(response.data)
   }
 
@@ -437,25 +443,22 @@ impl Api {
   // Result<Vec<Collection>> { ... }
 
   /// Downloads a wallpaper image from its direct URL (`wallpaper.path`).
-  pub async fn download_wallpaper(&self, url: &str, path: &std::path::Path) -> Result<()> {
-    let response = self
-      .client
-      .get(url)
-      .send()
-      .await
-      .map_err(Error::NetworkError)?;
+  pub async fn download_wallpaper(
+    &self,
+    url: &str,
+    path: &std::path::Path
+  ) -> Result<()> {
+    let response = self.client.get(url).send().await.map_err(Error::Network)?;
 
     if !response.status().is_success() {
       let status = response.status();
-      return Err(Error::ApiError(format!(
+      return Err(Error::API(format!(
         "Failed to download wallpaper: Status {status}"
       )));
     }
 
-    let bytes = response.bytes().await.map_err(Error::NetworkError)?;
-    tokio::fs::write(path, bytes)
-      .await
-      .map_err(Error::IoError)?;
+    let bytes = response.bytes().await.map_err(Error::Network)?;
+    tokio::fs::write(path, bytes).await.map_err(Error::IO)?;
     Ok(())
   }
 }

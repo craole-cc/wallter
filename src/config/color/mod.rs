@@ -1,5 +1,5 @@
-mod default;
+pub mod default;
 pub use default::Config;
 
-mod mode;
+pub mod mode;
 pub use mode::Config as Mode;

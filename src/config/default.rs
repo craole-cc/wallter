@@ -1,5 +1,6 @@
 use super::{Color, ColorMode, Monitor, Path, PathType, Search, Slideshow};
 use crate::{Error, Result};
+
 use serde::{Deserialize, Serialize};
 use std::{
   fmt::{self, Display, Formatter},
@@ -61,9 +62,9 @@ impl Config {
     //{ Parse the contents of the config file based on the defined format }
     match path_config.config_type {
       PathType::Toml =>
-        toml::from_str(&content).map_err(|e| Error::ConfigError(e.to_string())),
-      PathType::Json => serde_json::from_str(&content)
-        .map_err(|e| Error::ConfigError(e.to_string()))
+        toml::from_str(&content).map_err(|e| Error::Config(e.to_string())),
+      PathType::Json =>
+        serde_json::from_str(&content).map_err(|e| Error::Config(e.to_string())),
     }
   }
 
@@ -75,9 +76,9 @@ impl Config {
     //{ Serialize to appropriate format }
     let contents = match path_config.config_type {
       PathType::Toml =>
-        toml::to_string(self).map_err(|e| Error::ConfigError(e.to_string()))?,
+        toml::to_string(self).map_err(|e| Error::Config(e.to_string()))?,
       PathType::Json => serde_json::to_string_pretty(self)
-        .map_err(|e| Error::ConfigError(e.to_string()))?
+        .map_err(|e| Error::Config(e.to_string()))?
     };
 
     //{ Update the configuration file }

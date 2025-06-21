@@ -50,6 +50,11 @@ impl Config {
     }
   }
 
+  // pub fn toggle_mode(&mut self) -> Result<()> {
+  //   Ok(Mode::toggle())
+  //   // self.mode=self.mode.
+  // }
+
   /// Returns a new `Config` with the specified mode.
   #[must_use]
   pub fn with_mode(mut self, mode: Mode) -> Self {

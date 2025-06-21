@@ -34,14 +34,13 @@ impl Config {
       Ok(Mode::Light) => Self::Light,
       Ok(Mode::Unspecified) => {
         eprintln!(
-          "System color mode is unspecified.\nUsing default mode: {fallback}"
+          "System color mode is unspecified. Using default mode: {fallback}"
         );
         fallback
       }
       Err(e) => {
         eprintln!(
-          "Failed to detect the system's color mode: {e}.\nUsing default
-mode: {fallback}"
+          "Failed to detect the system's color mode: {e}. Using default mode: {fallback}"
         );
         fallback
       }
@@ -83,7 +82,7 @@ mode: {fallback}"
     let manager: Box<dyn self::Manager> = {
       #[cfg(target_os = "windows")]
       {
-        Box::new(super::windows::Manager)
+        Box::new(super::windows::Manager::new_default())
       }
       #[cfg(target_os = "linux")]
       {
@@ -109,7 +108,8 @@ mode: {fallback}"
         Box::new(UnsupportedManager)
       }
     };
-    manager.set(desired)
+    manager.set(desired);
+    Ok(())
   }
 }
 

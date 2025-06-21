@@ -3783,7 +3783,6 @@ dependencies = [
  "thiserror 2.0.12",
  "tokio",
  "toml",
- "tracing",
  "winapi",
  "winit",
  "winreg 0.55.0",
