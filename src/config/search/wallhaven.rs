@@ -6,7 +6,7 @@ use std::fmt::{self, Display, Formatter};
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct Params {
   /// Default search query. Example: "nature", "id:123"
-  pub default_query: Option<String>,
+  pub query: Option<String>,
 
   /// Categories (General, Anime, People).
   pub categories: Option<(bool, bool, bool)>,
@@ -38,10 +38,15 @@ pub struct Params {
 
 impl Display for Params {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    const PAD: usize = 22;
+    const TAB: usize = 6;
+
     printf!(
       f,
       "Default Query",
-      self.default_query.as_deref().unwrap_or("[None]")
+      self.query.as_deref().unwrap_or("[None]"),
+      PAD,
+      TAB
     )?;
 
     if let Some(cats) = self.categories {
@@ -51,8 +56,9 @@ impl Display for Params {
         if cats.1 { "✓" } else { "✗" },
         if cats.2 { "✓" } else { "✗" }
       );
-      printf!(f, "Categories", cat_str)?;
+      printf!(f, "Categories", cat_str, PAD, TAB)?;
     }
+
     if let Some(purs) = self.purity {
       let pur_str = format!(
         "SFW:{} Sketchy:{} NSFW:{}",
@@ -60,28 +66,35 @@ impl Display for Params {
         if purs.1 { "✓" } else { "✗" },
         if purs.2 { "✓" } else { "✗" }
       );
-      printf!(f, "Purity", pur_str)?;
+      printf!(f, "Purity", pur_str, PAD, TAB)?;
     }
+
     if let Some(sorting) = self.sorting {
-      printf!(f, "Sorting", format!("{sorting:?}"))?;
+      printf!(f, "Sorting", format!("{sorting:?}"), PAD, TAB)?;
     }
+
     if let Some(order) = self.order {
-      printf!(f, "Order", format!("{order:?}"))?;
+      printf!(f, "Order", format!("{order:?}"), PAD, TAB)?;
     }
+
     if let Some(range) = self.top_range {
-      printf!(f, "Top Range", format!("{range:?}"))?;
+      printf!(f, "Top Range", format!("{range:?}"), PAD, TAB)?;
     }
+
     if let Some(res) = &self.atleast {
-      printf!(f, "Min Resolution", res)?;
+      printf!(f, "Min Resolution", res, PAD, TAB)?;
     }
+
     if let Some(res) = &self.resolutions {
-      printf!(f, "Exact Resolutions", res)?;
+      printf!(f, "Exact Resolutions", res, PAD, TAB)?;
     }
+
     if let Some(ratio) = &self.ratios {
-      printf!(f, "Aspect Ratios", ratio)?;
+      printf!(f, "Aspect Ratios", ratio, PAD, TAB)?;
     }
+
     if let Some(color) = &self.colors {
-      printf!(f, "Color", color)?;
+      printf!(f, "Color", color, PAD, TAB)?;
     }
 
     Ok(())

@@ -1,3 +1,4 @@
+use super::types;
 use crate::{Error, Result, config::Monitor};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -8,14 +9,18 @@ use std::{
 };
 use winit::monitor;
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, Copy)]
-pub enum Type {
-  #[default]
-  Toml,
-  Json
+/// Holds paths specific to a single monitor.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct MonitorPaths {
+  /// The name of the monitor (e.g., "DP-1").
+  pub name: String,
+  /// The directory where wallpapers for this monitor's resolution are stored.
+  pub download_dir: PathBuf,
+  /// The path to the file currently set as the wallpaper for this monitor.
+  pub current_wallpaper: PathBuf
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
   /// Home directory for the config and wallpapers
   pub home_dir: PathBuf,
@@ -26,17 +31,46 @@ pub struct Config {
   /// User-defined wallpaper favorites
   pub favorites_dir: PathBuf,
 
-  /// Current wallpaper for each monitor
+  /// This directory houses the current wallpaper for each monitor
   pub wallpaper_dir: PathBuf,
 
   /// The name of the configuration file
   pub config_name: String,
 
   /// The format type of the configuration file
-  pub config_type: Type,
+  pub config_type: types::Config,
 
   /// The constructed path to the config file
-  pub config_file: PathBuf
+  pub config_file: PathBuf,
+
+  /// Paths specific to each detected monitor.
+  #[serde(default)]
+  pub monitor_paths: Vec<MonitorPaths>
+}
+
+impl Display for Config {
+  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    printf!(f, "Home Directory", self.home_dir.display())?;
+    printf!(f, "Downloads Directory", self.downloads_dir.display())?;
+    printf!(f, "Favorites Directory", self.favorites_dir.display())?;
+    printf!(f, "Wallpaper Directory", self.wallpaper_dir.display())?;
+    printf!(f, "Config File", self.config_file.display())?;
+
+    // for paths in &self.monitor_paths {
+    //   printf!(
+    //     f,
+    //     &format!("Wallpapers [{}]", paths.name),
+    //     paths.download_dir.display()
+    //   )?;
+    //   printf!(
+    //     f,
+    //     &format!("Wallpaper [{}]", paths.name),
+    //     paths.current_wallpaper.display()
+    //   )?;
+    // }
+
+    Ok(())
+  }
 }
 
 impl Default for Config {
@@ -58,7 +92,7 @@ impl Default for Config {
     let favorites_dir = home_dir.join("favorites");
     let wallpaper_dir = home_dir.join("wallpaper");
     let config_name = "config".to_string();
-    let config_type = Type::default();
+    let config_type = types::Config::default();
     let config_file =
       home_dir.join(format!("{}.{}", config_name, config_type.extension()));
 
@@ -69,7 +103,8 @@ impl Default for Config {
       wallpaper_dir,
       config_name,
       config_file,
-      config_type
+      config_type,
+      monitor_paths: Vec::new()
     }
   }
 }
@@ -79,39 +114,42 @@ impl Config {
     Self::default()
   }
 
-  /// Create all necessary paths
-  pub fn create_all(&self) -> Result<()> {
-    self.create_config_dirs()?;
-    self.create_config_file(None)?;
-    Ok(())
-  }
-
-  /// Creates ratio and resolution-specific subdirectories within the wallpaper
-  /// directory.
-  pub fn create_wallpaper_dirs(&self, monitors: &[Monitor]) -> Result<()> {
-    for monitor in monitors {
-      let wallpaper_dir = self.get_wallpaper_dir(monitor);
-      create_dir_all(&wallpaper_dir)?;
-    }
-    Ok(())
-  }
-
-  /// Returns the path to the ratio-specific subdirectory within the wallpaper
-  /// directory.
-  pub fn get_wallpaper_dir(&self, monitor: &Monitor) -> PathBuf {
+  /// Returns the path to the monitor-specific wallpaper download directory.
+  pub fn get_download_dir(&self, monitor: &Monitor) -> PathBuf {
     let monitor = &monitor.size;
     let ratio_dir = monitor.ratio_str();
     let resolution_dir = monitor.resolution_str();
-    self.wallpaper_dir.join(ratio_dir).join(resolution_dir)
+    self.downloads_dir.join(ratio_dir).join(resolution_dir)
   }
 
-  /// Create all necessary directories (home, downloads, favorites, wallpaper).
-  pub fn create_config_dirs(&self) -> Result<()> {
+  /// Create all necessary directories (home, downloads, favorites, wallpaper,
+  /// monitor-specific) and the config file.
+  pub fn create_all(&mut self, monitors: &[Monitor]) -> Result<()> {
     create_dir_all(&self.home_dir)?;
     create_dir_all(&self.downloads_dir)?;
     create_dir_all(&self.favorites_dir)?;
     create_dir_all(&self.wallpaper_dir)?;
 
+    //{ Clear old paths and create monitor-specific paths }
+    self.monitor_paths.clear();
+    for monitor in monitors {
+      let download_dir = self.get_download_dir(monitor);
+      create_dir_all(&download_dir)?;
+
+      // The path for the active wallpaper for this monitor.
+      // We assume a default extension for now; the `set` command will manage
+      // the actual file.
+      let current_wallpaper =
+        self.wallpaper_dir.join(format!("{}.png", monitor.name));
+
+      self.monitor_paths.push(MonitorPaths {
+        name: monitor.name.clone(),
+        download_dir,
+        current_wallpaper
+      });
+    }
+
+    self.create_config_file(None)?;
     Ok(())
   }
 
@@ -142,7 +180,7 @@ impl Config {
   }
 
   /// Builder method to set the config file type.
-  pub fn with_type(mut self, config_type: Type) -> Self {
+  pub fn with_type(mut self, config_type: types::Config) -> Self {
     self.config_type = config_type;
     self.update_config_file();
     self
@@ -155,42 +193,5 @@ impl Config {
       self.config_name,
       self.config_type.extension()
     ));
-  }
-}
-
-impl Type {
-  /// Returns the file extension for this config type (without dot).
-  pub fn extension(self) -> &'static str {
-    match self {
-      Type::Toml => "toml",
-      Type::Json => "json"
-    }
-  }
-
-  /// Detect config type from file extension
-  pub fn from_extension(path: &Path) -> Result<Self> {
-    path
-      .extension()
-      .and_then(|ext| ext.to_str())
-      .map(|ext| match ext.to_lowercase().as_str() {
-        "toml" => Type::Toml,
-        "json" => Type::Json,
-        _ => Type::default()
-      })
-      .ok_or_else(|| Error::Config("Unknown config file format".into()))
-  }
-}
-
-impl Display for Config {
-  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-    printf!(f, "Home Directory", self.home_dir.display())?;
-    printf!(f, "Downloads Directory", self.downloads_dir.display())?;
-    printf!(f, "Favorites Directory", self.favorites_dir.display())?;
-    printf!(f, "Config File", self.config_file.display())?;
-    // for monitor in Monitor::get_info() {
-    //   let wallpaper_dir = self.get_wallpaper_dir(&monitor);
-    //   printf!(f, "Wallpaper Directory", wallpaper_dir.display())?;
-    // }
-    Ok(())
   }
 }

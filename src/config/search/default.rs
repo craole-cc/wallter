@@ -16,6 +16,22 @@ pub struct Config {
   pub ordered: Vec<String>
 }
 
+impl Display for Config {
+  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    for (i, source) in self.sources.iter().enumerate() {
+      //{ Determine and display rank }
+      if let Some(rank) = self.ordered.iter().position(|name| name == &source.name)
+      {
+        printf!(f, "Rank", rank + 1)?;
+      }
+
+      //{ Display source information }
+      writeln!(f, "{source}")?;
+    }
+    Ok(())
+  }
+}
+
 impl Default for Config {
   /// Creates a new `Config` instance with default values.
   /// By default, it initializes with a common set of wallpaper sources.
@@ -68,21 +84,5 @@ impl Default for Config {
 impl Config {
   pub fn new() -> Self {
     Self::default()
-  }
-}
-
-impl Display for Config {
-  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-    for (i, source) in self.sources.iter().enumerate() {
-      //{ Determine and display rank }
-      if let Some(rank) = self.ordered.iter().position(|name| name == &source.name)
-      {
-        printf!(f, "Rank", rank + 1)?;
-      }
-
-      //{ Display source information }
-      writeln!(f, "{source}")?;
-    }
-    Ok(())
   }
 }

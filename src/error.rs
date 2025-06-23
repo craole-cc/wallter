@@ -19,7 +19,7 @@ pub enum Error {
   Image(String),
 
   #[error("Monitor detection error: {0}")]
-  Screen(String),
+  Monitor(#[from] crate::config::monitor::Error),
 
   #[error("Invalid settings: {0}")]
   Settings(String),
@@ -28,8 +28,7 @@ pub enum Error {
   ColorMode(String),
 
   #[error("Parse error: {0}")]
-  Parse(#[from] parse::Error),
-
+  Parse(#[from] parse::Error)
   // #[error("Night Light error: {0}")]
   // NightLight(#[from] Box<nightlight::Error>)
 }

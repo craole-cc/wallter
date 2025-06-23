@@ -1,2 +1,4 @@
 mod default;
-pub use default::{Config, Type};
+pub use default::Config;
+
+pub mod types;

@@ -64,15 +64,15 @@ impl Display for Source {
       printf!(f, "Base URL", &self.base_url)?;
     }
 
-    printf!(f, "API Key", self.api_key.as_deref().unwrap_or("[Not Set]"))?;
     printf!(f, "Requires API Key", self.requires_api_key)?;
     printf!(f, "Enabled (User)", self.enabled)?;
     printf!(f, "Valid (Runtime)", self.valid)?;
-    writeln!(f, "{:#?}", self.wallhaven)?;
-
+    printf!(f, "API Key", self.api_key.as_deref().unwrap_or("[Not Set]"))?;
     if let Some(params) = &self.wallhaven {
-      printf!(f, "Wallhaven Params", "")?;
-      write!(f, "{params}")?;
+      printh!(f, "API Parameters:", 4)?; // Heading at indent 4
+      writeln!(f, "{params}")?;
+      // params.display_indented(f, 4)?; // Pass 4 as base_indent, so fields
+      // will be at 6
     }
     Ok(())
   }

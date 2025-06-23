@@ -1,5 +1,5 @@
 mod default;
-pub use default::Config;
+pub use default::{Config, Error};
 
 mod size;
 pub use size::Config as Size;

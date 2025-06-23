@@ -1,11 +1,12 @@
-use crate::config::monitor::{Position, Size};
+use super::{Position, Size};
+use crate::config::path::Config as PathConfig;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 use std::{
   cell::RefCell,
   fmt::{self, Display, Formatter}
 };
-use crate::config::path::Config as PathConfig;
-use std::path::PathBuf;
+use thiserror::Error as ThisError;
 use winit::{
   application::ApplicationHandler,
   dpi::{PhysicalPosition, PhysicalSize},
@@ -14,6 +15,14 @@ use winit::{
   monitor::MonitorHandle,
   window::WindowId
 };
+
+#[derive(ThisError, Debug)]
+pub enum Error {
+  #[error("Winit event loop error: {0}")]
+  EventLoop(#[from] winit::error::EventLoopError)
+}
+
+pub type Result<T> = std::result::Result<T, Error>;
 
 /// Represents a physical monitor and its properties.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -29,12 +38,29 @@ pub struct Config {
   /// The monitor's scale factor (DPI scaling, e.g., 1.0 for 100%).
   pub scale: f32,
   /// Whether the monitor is the primary monitor. (Windows only)
-  pub primary: bool,
+  pub primary: bool
+}
+
+impl Display for Config {
+  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    printf!(f, "Id", self.id)?;
+    printf!(f, "Name", &self.name)?;
+    printf!(f, "Height", self.size.height)?;
+    printf!(f, "Width", self.size.width)?;
+    printf!(f, "Resolution", self.size.resolution_str())?;
+    printf!(f, "Orientation", &self.size.orientation())?;
+    printf!(f, "Ratio", self.size.ratio_str())?;
+    printf!(f, "Scale", format!("{:.1}x", self.scale))?;
+    printf!(f, "Position", &self.position)?;
+    printf!(f, "Primary", self.primary)?;
+
+    Ok(())
+  }
 }
 
 impl Config {
   /// Enumerate all monitors and return their information.
-  pub fn get_info() -> Vec<Self> {
+  pub fn get_info() -> Result<Vec<Self>> {
     let result = RefCell::new(Vec::new());
 
     struct Handler<'a> {
@@ -109,27 +135,45 @@ impl Config {
       fn memory_warning(&mut self, _: &ActiveEventLoop) {}
     }
 
-    let event_loop = EventLoop::new().unwrap();
+    let event_loop = EventLoop::new()?;
     let mut handler = Handler { result: &result };
-    let _ = event_loop.run_app(&mut handler);
+    event_loop.run_app(&mut handler)?;
 
-    result.into_inner()
+    Ok(result.into_inner())
   }
-}
 
-impl Display for Config {
-  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-    printf!(f, "Id", self.id)?;
-    printf!(f, "Name", &self.name)?;
-    printf!(f, "Height", self.size.height)?;
-    printf!(f, "Width", self.size.width)?;
-    printf!(f, "Resolution", self.size.resolution_str())?;
-    printf!(f, "Orientation", &self.size.orientation())?;
-    printf!(f, "Ratio", self.size.ratio_str())?;
-    printf!(f, "Scale", format!("{:.1}x", self.scale))?;
-    printf!(f, "Position", &self.position)?;
-    printf!(f, "Primary", self.primary)?;
-
+  /// Helper function to display wallpaper paths for a given monitor.
+  /// This can be commented out in the `Display` impl to toggle visibility.
+  pub fn display_wallpaper_paths(
+    &self,
+    f: &mut Formatter<'_>,
+    path_config: &PathConfig
+  ) -> fmt::Result {
+    if let Some(monitor_path) = path_config
+      .monitor_paths
+      .iter()
+      .find(|p| p.name == self.name)
+    {
+      // The default padding for `printf!` is 24, with 4 spaces of indentation.
+      // To indent by 6 spaces while keeping the separator aligned,
+      // we reduce the key padding by 2 (from 24 to 22).
+      const PAD: usize = 22;
+      const INDENT: usize = 6;
+      printf!(
+        f,
+        "Available",
+        monitor_path.download_dir.display(),
+        PAD,
+        INDENT
+      )?;
+      printf!(
+        f,
+        "Activated",
+        monitor_path.current_wallpaper.display(),
+        PAD,
+        INDENT
+      )?;
+    }
     Ok(())
   }
 }
