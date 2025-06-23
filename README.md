@@ -1,6 +1,6 @@
 # Wallter: Redefine Your Desktop with Dynamic Wallpaper Alteration
 
-Unlock the full potential of your desktop with **Wallter**, the innovative
+Unlock the full potential of your desktop with **Wallter**, an innovative
 application designed to empower you to **alter** your wallpapers dynamically.
 This includes future capabilities to apply direct image changes, such as
 grayscale, mosaic effects, and more, before setting the wallpaper. Starting as a
