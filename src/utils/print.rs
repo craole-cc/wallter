@@ -43,10 +43,10 @@ macro_rules! printf {
 /// Macro for concise heading printing, forwarding to `pout_heading`.
 #[macro_export]
 macro_rules! printh {
-    ($f:expr, $text:expr, $indent:expr) => {
-        $crate::utils::print::pout_heading($f, $text, $indent)
-    };
-    ($f:expr, $text:expr) => {
-        $crate::utils::print::pout_heading($f, $text, 2)
-    };
+  ($f:expr, $text:expr, $indent:expr) => {
+    $crate::utils::print::pout_heading($f, $text, $indent)
+  };
+  ($f:expr, $text:expr) => {
+    $crate::utils::print::pout_heading($f, $text, 2)
+  };
 }

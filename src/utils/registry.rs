@@ -5,8 +5,8 @@
 use crate::{Error, Result};
 use std::io;
 use winreg::{
-  enums::{KEY_READ, KEY_SET_VALUE, REG_BINARY},
-  RegKey, RegValue, HKEY
+  HKEY, RegKey, RegValue,
+  enums::{KEY_READ, KEY_SET_VALUE, REG_BINARY}
 };
 
 /// Reads a raw binary value from the specified registry key and value name.

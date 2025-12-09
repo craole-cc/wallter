@@ -20,7 +20,8 @@ impl Display for Config {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     for (i, source) in self.sources.iter().enumerate() {
       //{ Determine and display rank }
-      if let Some(rank) = self.ordered.iter().position(|name| name == &source.name)
+      if let Some(rank) =
+        self.ordered.iter().position(|name| name == &source.name)
       {
         printf!(f, "Rank", rank + 1)?;
       }

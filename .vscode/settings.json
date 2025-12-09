@@ -1,3 +1,7 @@
 {
-  "git.enabled": false
+  "fileinator.ignoredFolders": [
+    ".git",
+    ".direnv",
+    "Cargo.lock"
+  ]
 }

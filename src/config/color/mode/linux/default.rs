@@ -5,7 +5,7 @@
 //! GNOME) and uses environment-specific commands (e.g.,
 //! `plasma-apply-colorscheme`, `gsettings`) to apply the desired theme.
 
-use crate::config::color::mode::{Config, Manager as ModeManager};
+use super::super::{Config, Manager as ModeManager};
 use crate::{Error, Result};
 use std::{env, process::Command};
 

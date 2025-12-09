@@ -1,2 +1,2 @@
 mod default;
-pub use default::Config;
+pub use default::Manager;

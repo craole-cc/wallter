@@ -9,7 +9,5 @@ fn main() -> Result<()> {
   let config = wallter::config::init()?;
   println!("Config: {config}");
 
-
-
   Ok(())
 }

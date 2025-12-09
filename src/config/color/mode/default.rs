@@ -1,5 +1,5 @@
 use crate::{Error, Result};
-use dark_light::{detect, Mode};
+use dark_light::{Mode, detect};
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display, Formatter};
 
