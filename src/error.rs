@@ -1,4 +1,4 @@
-use crate::{config::color::mode::windows::nightlight, utils::parse};
+use crate::utils::parse;
 use std::io;
 
 #[derive(thiserror::Error, Debug)]
@@ -29,6 +29,4 @@ pub enum Error {
 
   #[error("Parse error: {0}")]
   Parse(#[from] parse::Error)
-  // #[error("Night Light error: {0}")]
-  // NightLight(#[from] Box<nightlight::Error>)
 }
