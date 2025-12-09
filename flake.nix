@@ -35,8 +35,8 @@
             xorg.libX11
 
             # Desktop environment tools for color/wallpaper management (Optional but recommended for 'wallter')
-            gnome.gsettings-desktop-schemas # For GNOME
-            kdePackages.plasma-framework # Provides plasma-apply-colorscheme for KDE
+            gsettings-desktop-schemas #? For GNOME
+            kdePackages.plasma-workspace #? Provides plasma-apply-colorscheme for KDE
 
             # Additional useful tools
             cargo-watch
