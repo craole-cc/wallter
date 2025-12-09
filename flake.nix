@@ -7,53 +7,59 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    rust-overlay,
-    flake-utils,
-  }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      rust-overlay,
+      flake-utils,
+    }:
     flake-utils.lib.eachDefaultSystem (
-      system: let
-        overlays = [(import rust-overlay)];
+      system:
+      let
+        overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs {
           inherit system overlays self;
         };
-      in {
+      in
+      {
         devShells.default = pkgs.mkShell {
+          # Reduce the build inputs to strict build-time necessities
           buildInputs = with pkgs; [
             # Rust toolchain
-            rust-bin.nightly.latest.default
+            # rust-bin.nightly.latest.default
+            (rust-bin.fromRustupToolchainFile ./rust-toolchain.toml)
 
-            # OpenSSL and dependencies
+            # --- Linker Fixes (Clang + Mold) ---
+            clang
+            mold
+
+            # --- Libraries required for LINKING ---
             openssl
             pkg-config
-            wayland # Includes the necessary runtime library: libwayland-client.so.0
-            libxkbcommon # Essential for keyboard input on Wayland/X11
+            wayland # Required for libwayland-client.so
+            libxkbcommon # Required for keyboard support
+            xorg.libX11 # Required for Winit X11 fallback
 
-            # Add X11 libraries for winit fallback, often required
-            xorg.libX11
-
-            # Desktop environment tools for color/wallpaper management (Optional but recommended for 'wallter')
-            gsettings-desktop-schemas #? For GNOME
-            kdePackages.plasma-workspace #? Provides plasma-apply-colorscheme for KDE
-
-            # Additional useful tools
+            # Dev tools
             cargo-watch
             rust-analyzer
-            treefmt
-            taplo
-            deno
+            clippy
           ];
 
-          # Environment variables for OpenSSL (These are correct and should remain)
+          # --- Environment Variables ---
+
+          # 1. Force Rust to use Clang and Mold (Fixes "Argument list too long" during linking)
+          RUSTFLAGS = "-C linker=clang -C link-arg=-fuse-ld=mold";
+
+          # 2. OpenSSL Setup
           OPENSSL_DIR = "${pkgs.openssl.dev}";
           OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
           OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
           PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
-          # Optional: Help winit find the libraries at runtime on NixOS
-          LD_LIBRARY_PATH = "${pkgs.libxkbcommon}/lib:${pkgs.wayland}/lib:$LD_LIBRARY_PATH";
+          # 3. Runtime Library Path (Fixes "NoWaylandLib" errors)
+          LD_LIBRARY_PATH = "${pkgs.libxkbcommon}/lib:${pkgs.wayland}/lib:${pkgs.xorg.libX11}/lib:$LD_LIBRARY_PATH";
         };
       }
     );
